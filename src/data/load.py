@@ -13,7 +13,7 @@ column_names = {
         ]
         }
 
-def load_data(config: dict) -> dict:
+def load_data(config: dict) -> dict[str, pd.DataFrame]:
     """Load ratings, items and users datasets."""
 
     dataframes ={}
