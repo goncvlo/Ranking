@@ -1,8 +1,19 @@
+import numpy as np
 import pandas as pd
 
 def prepare_data(dataframes: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
-    """Transform the dataframes."""
+    """Transform dataframes."""
 
+    # user dataset
+    dataframes['user']['occupation'] = np.where(
+        dataframes['user']['occupation']=='none'
+        , 'other' # could be set as unemployed
+        , dataframes['user']['occupation']
+        )
+    # item dataset
     dataframes['item'] = dataframes['item'].drop(columns=['video_release_date'])
+    dataframes['item']['release_date'] = pd.to_datetime(
+        dataframes['item']['release_date'], format='%d-%b-%Y', errors='coerce'
+        )
 
     return dataframes
