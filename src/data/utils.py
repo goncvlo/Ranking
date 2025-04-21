@@ -1,6 +1,6 @@
 import pandas as pd
 
-def prepare_features(
+def build_rank_input(
         ratings: pd.DataFrame, features: dict[str, pd.DataFrame]
         ) -> dict[str, pd.DataFrame | list]:
     """Create X, y, and group sets."""
