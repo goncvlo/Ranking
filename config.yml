@@ -1,7 +1,7 @@
 data_loader:
   path: https://files.grouplens.org/datasets/movielens/ml-100k/u.
   sub_paths: ['data', 'user', 'item']
-model_selection:
+optimization:
   leave_last_k: 3
   hyper_params:
     XGBRanker:
