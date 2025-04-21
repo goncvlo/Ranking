@@ -13,7 +13,7 @@ def leave_last_k(df: pd.DataFrame, config: dict):
     df_sorted['rank'] = df_sorted.groupby(by=['user_id']).cumcount()
 
     # test set = last k per user (i.e. first k rows of df_sorted)
-    test_df = df_sorted[df_sorted['rank'] < config['leave_last_k']].copy().drop(columns=['rank'])
-    train_df = df_sorted[df_sorted['rank'] >= config['leave_last_k']].copy().drop(columns=['rank'])
+    test_df = df_sorted[df_sorted['rank'] < config['leave_last_k']].drop(columns='rank').reset_index(drop=True)
+    train_df = df_sorted[df_sorted['rank'] >= config['leave_last_k']].drop(columns='rank').reset_index(drop=True)
 
-    return train_df.reset_index(drop=True), test_df.reset_index(drop=True)
+    return train_df, test_df

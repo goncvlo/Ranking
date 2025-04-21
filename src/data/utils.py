@@ -14,7 +14,7 @@ def build_rank_input(
         ratings.copy()
         .merge(features['user'], on='user_id', how='left')
         .merge(features['item'], on='item_id', how='left')
-        .drop(columns=['user_id', 'item_id', 'rating', 'timestamp'])
+        .drop(columns=['user_id', 'item_id', 'rating'])
         )
     data['y'] = ratings['rating']
 
