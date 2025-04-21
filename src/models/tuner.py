@@ -32,10 +32,10 @@ class BayesianSearch:
         
         # set suggested hyper-parameters
         hyperparams = self.suggest_hyperparams(trial)
-        model = XGBRanker(**hyperparams)
+        clf = XGBRanker(**hyperparams)
         
         # fit the model with early stopping if needed
-        model.fit(
+        clf.fit(
             df_train['X'], df_train['y']
             , group=df_train['group']
             #, eval_set=[(df_valid['X'], df_valid['y'])]
@@ -44,17 +44,17 @@ class BayesianSearch:
         )
 
         # compute predictions and evaluate
-        preds = model.predict(df_valid['X'])
-        ndcg_score_result = self._calculate_ndcg(df_valid['group'], df_valid['y'], preds)
+        preds = clf.predict(df_valid['X'])
+        ndcg_score_result = self._calculate_ndcg(df_valid, preds)
 
         return np.mean(ndcg_score_result)
 
-    def _calculate_ndcg(self, group_sizes: list, y_true: pd.Series, preds: np.ndarray) -> list:
+    def _calculate_ndcg(self, df_valid: dict[str, list | pd.DataFrame], preds: np.ndarray) -> list:
         """Helper function to calculate NDCG score per group."""
         offset = 0
         ndcgs = []
-        for group_size in group_sizes:
-            y_true_group = y_true[offset:offset+group_size]
+        for group_size in df_valid['group']:
+            y_true_group = df_valid['y'][offset:offset+group_size]
             preds_group = preds[offset:offset+group_size]
             ndcgs.append(ndcg_score([y_true_group], [preds_group]))
             offset += group_size
