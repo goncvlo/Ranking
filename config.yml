@@ -3,3 +3,17 @@ data_loader:
   sub_paths: ['data', 'user', 'item']
 model_selection:
   leave_last_k: 3
+  hyper_params:
+    XGBRanker:
+      fixed:
+        booster: 'gbtree'
+        objective: 'rank:pairwise'
+        eval_metric: 'ndcg'
+      tunable:
+        learning_rate: [0.01, 0.3]
+        gamma: [0, 5]
+        max_depth: [3, 10]
+        subsample: [0.5, 1]
+        n_estimators: [50, 300]
+      float_params: ['learning_rate', 'gamma', 'subsample']
+      
