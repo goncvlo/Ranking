@@ -19,7 +19,7 @@ def prepare_data(dataframes: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]
     
     # ratings set
     dataframes['data']['rating'] = np.where(
-        dataframes['data']['rating'].isin([1, 2]), 1, dataframes['data']['rating']-1
+        dataframes['data']['rating'].isin([1, 2, 3]), 1, dataframes['data']['rating']-2
     )
     
     return dataframes
