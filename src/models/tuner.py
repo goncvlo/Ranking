@@ -1,8 +1,7 @@
-import numpy as np
 import pandas as pd
-from sklearn.metrics import ndcg_score
 from xgboost import XGBRanker
 import optuna
+from src.models.evaluator import evaluation
 
 class BayesianSearch:
     def __init__(self, config: dict, algorithm: str):
@@ -45,18 +44,7 @@ class BayesianSearch:
 
         # compute predictions and evaluate
         preds = clf.predict(df_valid['X'])
-        ndcg_score_result = self._calculate_ndcg(df_valid, preds)
+        ndcg_score_result = evaluation(df_valid['y'], preds, df_valid['group'])
 
-        return np.mean(ndcg_score_result)
-
-    def _calculate_ndcg(self, df_valid: dict[str, list | pd.DataFrame], preds: np.ndarray) -> list:
-        """Helper function to calculate NDCG score per group."""
-        offset = 0
-        ndcgs = []
-        for group_size in df_valid['group']:
-            y_true_group = df_valid['y'][offset:offset+group_size]
-            preds_group = preds[offset:offset+group_size]
-            ndcgs.append(ndcg_score([y_true_group], [preds_group]))
-            offset += group_size
-        return ndcgs
+        return ndcg_score_result
     
