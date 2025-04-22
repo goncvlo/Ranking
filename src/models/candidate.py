@@ -31,10 +31,9 @@ def top_or_bottom_n(predictions, n: int=10, get_top: bool=True):
     """Return either the top-N or bottom-N recommendation for each user from a set of predictions.
 
     Args:
-        predictions (list of Prediction objects): The list of predictions, as
-            returned by the test method of an algorithm.
-        n (int): The number of recommendations to output for each user. Default is 10.
-        get_top (bool): If True, returns the top-N recommendations. If False, returns the bottom-N recommendations.
+        predictions (list): List of predictions, as returned by the test method of an algorithm.
+        n (int): Number of recommendations to output for each user. Default is 10.
+        get_top (bool): If True, returns the top-N recommendations. If False, returns the bottom-N.
 
     Returns:
         A dict where keys are user (raw) ids and values are lists of tuples:

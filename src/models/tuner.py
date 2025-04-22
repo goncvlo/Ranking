@@ -10,18 +10,6 @@ class BayesianSearch:
         self.fixed_params = self.config['fixed']
         self.float_params = set(self.config['float_params'])
 
-    def suggest_hyperparams(self, trial: optuna.trial.Trial) -> dict:
-        """Suggest hyperparameters based on the config, using trial."""
-        tunable_params = {
-            hp: (
-                trial.suggest_float(name=hp, low=bounds[0], high=bounds[1])
-                if hp in self.float_params
-                else trial.suggest_int(name=hp, low=bounds[0], high=bounds[1])
-            )
-            for hp, bounds in self.config['tunable'].items()
-        }
-        return {**tunable_params, **self.fixed_params}
-
     def fit(
             self
             , df_train: dict[str, pd.DataFrame | list]
@@ -30,7 +18,7 @@ class BayesianSearch:
             ) -> float:
         
         # set suggested hyper-parameters
-        hyperparams = self.suggest_hyperparams(trial)
+        hyperparams = self._suggest_hyperparams(trial)
         clf = XGBRanker(**hyperparams)
         
         # fit the model with early stopping if needed
@@ -44,7 +32,19 @@ class BayesianSearch:
 
         # compute predictions and evaluate
         preds = clf.predict(df_valid['X'])
-        ndcg_score_result = evaluation(df_valid['y'], preds, df_valid['group'])
+        eval_metric = evaluation(df_valid['y'], preds, df_valid['group'])
 
-        return ndcg_score_result
+        return eval_metric
+    
+    def _suggest_hyperparams(self, trial: optuna.trial.Trial) -> dict:
+        """Suggest hyperparameters based on the config, using trial."""
+        tunable_params = {
+            hp: (
+                trial.suggest_float(name=hp, low=bounds[0], high=bounds[1])
+                if hp in self.float_params
+                else trial.suggest_int(name=hp, low=bounds[0], high=bounds[1])
+            )
+            for hp, bounds in self.config['tunable'].items()
+        }
+        return {**tunable_params, **self.fixed_params}
     
