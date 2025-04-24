@@ -10,10 +10,10 @@ optimization:
         objective: 'rank:pairwise'
         eval_metric: 'ndcg'
       tunable:
-        learning_rate: [0.01, 0.3]
-        gamma: [0, 5]
-        max_depth: [3, 10]
+        learning_rate: [0.001, 0.5]
+        gamma: [0, 10]
+        max_depth: [3, 15]
         subsample: [0.5, 1]
-        n_estimators: [50, 300]
+        n_estimators: [50, 400]
       float_params: ['learning_rate', 'gamma', 'subsample']
       
