@@ -7,10 +7,10 @@ from src.data.prepare import prepare_data
 from src.features.features import feature_engineering
 
 # read config
-with open('..\main\config.yml', 'r') as file:
+with open('..\Ranking\main\config.yml', 'r') as file:
     config=yaml.load(file, Loader= yaml.SafeLoader)
 
-def inference(config: dict, user_ids: list) -> pd.DataFrame:
+def inference(user_ids: list, config: dict=config) -> pd.DataFrame:
     """Inference pipeline."""
 
     # load and prepare data
