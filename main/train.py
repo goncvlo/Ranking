@@ -11,7 +11,7 @@ from src.models.retrieval import candidate_generation
 from src.features.utils import build_rank_input
 
 # read config
-with open('..\main\config.yml', 'r') as file:
+with open('..\Ranking\main\config.yml', 'r') as file:
     config=yaml.load(file, Loader= yaml.SafeLoader)
 del file
 
@@ -19,24 +19,23 @@ del file
 dataframes = load_data(config=config['data_loader'])
 dataframes = prepare_data(dataframes=dataframes)
 
-# create user-item features
+# create user-item features, and candidates
 user_item_features = feature_engineering(dataframes=dataframes)
-# perform positive and negative sampling
 candidates = candidate_generation(dataframes['data'], config['model']['retrieval'])
+
 df_train = pd.concat(
     [dataframes['data'].iloc[:,:3], candidates['positive'], candidates['negative']]
     , ignore_index=True
     )
-del candidates
-
 df_train = build_rank_input(ratings=df_train, features=user_item_features)
 
-clf = XGBRanker(**config['model']['hyper_params'])
+del candidates, user_item_features
+
+# build and save model
+clf = XGBRanker(**config['model']['ranking']['hyper_params'])
 clf.fit(
     df_train['X'], df_train['y'].astype(int)
     , group=df_train['group']
     , verbose=False
     )
-
-# save model
-joblib.dump(clf, 'artifacts/model.joblib')
+joblib.dump(clf, config['model']['path'])
