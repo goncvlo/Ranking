@@ -6,9 +6,9 @@ import joblib
 from src.data.load import load_data
 from src.data.prepare import prepare_data
 from src.models.cv_iterator import leave_last_k
-from src.data.features import feature_engineering
+from src.features.features import feature_engineering
 from src.models.retrieval import candidate_generation
-from src.data.utils import build_rank_input
+from src.features.utils import build_rank_input
 
 # read config
 with open('..\main\config.yml', 'r') as file:
