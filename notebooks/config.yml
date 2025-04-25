@@ -3,6 +3,13 @@ data_loader:
   sub_paths: ['data', 'user', 'item']
 optimization:
   leave_last_k: 5
+  retrieval:
+    negative:
+      method: 'SVD'
+      num: 30
+    positive:
+      method: 'CoClustering'
+      num: 10
   hyper_params:
     XGBRanker:
       fixed:
