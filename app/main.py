@@ -1,0 +1,20 @@
+from fastapi import FastAPI, Query
+from typing import List
+import pandas as pd
+
+from main.inference import inference
+
+app = FastAPI(title="Recommendation API")
+
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Recommendation API!"}
+
+@app.get("/recommend")
+def recommend(user_ids: List[int] = Query(...)):
+    """
+    Get top-N recommendations for a list of user_ids.
+    Example: /recommend?user_ids=101&user_ids=202&top_n=5
+    """
+    results = inference(user_ids=user_ids)
+    return results.to_dict(orient="records")
