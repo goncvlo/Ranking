@@ -9,7 +9,6 @@ from src.features.features import feature_engineering
 # read config
 with open('..\main\config.yml', 'r') as file:
     config=yaml.load(file, Loader= yaml.SafeLoader)
-del file
 
 def inference(config: dict, user_ids: list) -> pd.DataFrame:
     """Inference pipeline."""
@@ -41,16 +40,19 @@ def inference(config: dict, user_ids: list) -> pd.DataFrame:
         .merge(user_item_features['user'], how='left', on='user_id')
         .merge(user_item_features['item'], how='left', on='item_id')
         )
+    
+    del user_item_features, dataframes
 
-    # load model and get top-n recommendations
+    # load model and get top-3 recommendations
     clf = joblib.load(config['model']['path'])
-    candidates['pred'] = clf.predict(candidates.drop(columns=['user_id', 'item_id']))
+    feature_cols = [col for col in candidates.columns if col not in ['user_id', 'item_id']]
+    candidates['score'] = clf.predict(candidates[feature_cols])
 
     candidates = (
         candidates
-        .sort_values(['user_id', 'pred'], ascending=[True, False])
+        .sort_values(['user_id', 'score'], ascending=[True, False])
         .groupby('user_id').head(3)
-        [['user_id', 'item_id', 'pred']]
+        [['user_id', 'item_id', 'score']]
         )
     
     return candidates

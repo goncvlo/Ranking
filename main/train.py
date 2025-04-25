@@ -13,7 +13,6 @@ from src.features.utils import build_rank_input
 # read config
 with open('..\Ranking\main\config.yml', 'r') as file:
     config=yaml.load(file, Loader= yaml.SafeLoader)
-del file
 
 def train(config: dict):
     """Train pipeline."""
@@ -23,22 +22,25 @@ def train(config: dict):
     dataframes = prepare_data(dataframes=dataframes)
 
     # generate candidates and create user-item features
-    candidates = candidate_generation(dataframes['data'], config['model']['retrieval'])
-    df_train = pd.concat(
-        [dataframes['data'].iloc[:,:3], candidates['positive'], candidates['negative']]
+    train_df = candidate_generation(dataframes['data'], config['model']['retrieval'])
+    train_df = pd.concat(
+        [dataframes['data'].iloc[:,:3], train_df['positive'], train_df['negative']]
         , ignore_index=True
         )
 
     user_item_features = feature_engineering(dataframes=dataframes)
-    df_train = build_rank_input(ratings=df_train, features=user_item_features)
+    ranking_input = build_rank_input(ratings=ranking_input, features=user_item_features)
 
-    del candidates, user_item_features
+    del train_df, user_item_features, dataframes
 
     # build and save model
-    clf = XGBRanker(**config['model']['ranking']['hyper_params'])
-    clf.fit(
-        df_train['X'], df_train['y'].astype(int)
-        , group=df_train['group']
+    model = XGBRanker(**config['model']['ranking']['hyper_params'])
+    model.fit(
+        ranking_input['X'], ranking_input['y'].astype(int)
+        , group=ranking_input['group']
         , verbose=False
         )
-    joblib.dump(clf, config['model']['path'])
+    joblib.dump(model, config['model']['path'])
+
+if __name__ == "__main__":
+    train(config)
