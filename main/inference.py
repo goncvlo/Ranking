@@ -17,8 +17,10 @@ def inference(user_ids: list, config: dict = config) -> pd.DataFrame:
     dataframes = load_data(config=config['data_loader'])
     dataframes = prepare_data(dataframes=dataframes)
 
-    if (not user_ids or
-        set(user_ids).issubset(set(dataframes['user']['user_id']))):
+    if (
+        not user_ids or
+        set(user_ids).issubset(set(dataframes['user']['user_id']))
+        ):
         return pd.DataFrame(columns=['user_id', 'item_id', 'score'])
 
     # generate candidates from all the missing items

@@ -26,7 +26,7 @@ def train(config: dict = config):
         dataframes['data'], config['model']['retrieval']
         )
     train_df = pd.concat([
-        dataframes['data'].iloc[:,:3],
+        dataframes['data'].iloc[:, :3],
         train_df['positive'],
         train_df['negative']
         ], ignore_index=True)
