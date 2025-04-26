@@ -17,7 +17,8 @@ def inference(user_ids: list, config: dict = config) -> pd.DataFrame:
     dataframes = load_data(config=config["data_loader"])
     dataframes = prepare_data(dataframes=dataframes)
 
-    if not user_ids or set(user_ids).issubset(set(dataframes["user"]["user_id"])):
+    subset_cond = set(user_ids).issubset(set(dataframes["user"]["user_id"]))
+    if not user_ids or subset_cond:
         return pd.DataFrame(columns=["user_id", "item_id", "score"])
 
     # generate candidates from all the missing items
@@ -37,7 +38,8 @@ def inference(user_ids: list, config: dict = config) -> pd.DataFrame:
     )
 
     candidates = candidates[
-        (candidates["_merge"] == "left_only") & (candidates["user_id"].isin(user_ids))
+        (candidates["_merge"] == "left_only")
+        & (candidates["user_id"].isin(user_ids))
     ][["user_id", "item_id"]]
 
     # create features

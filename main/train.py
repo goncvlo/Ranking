@@ -22,14 +22,17 @@ def train(config: dict = config):
     dataframes = prepare_data(dataframes=dataframes)
 
     # generate candidates and create user-item features
-    train_df = candidate_generation(dataframes["data"], config["model"]["retrieval"])
-    train_df = pd.concat(
-        [dataframes["data"].iloc[:, :3], train_df["positive"], train_df["negative"]],
-        ignore_index=True,
-    )
+    train_df = candidate_generation(
+        dataframes["data"], config["model"]["retrieval"]
+        )
+    train_df = pd.concat([
+        dataframes["data"].iloc[:, :3],
+        train_df["positive"],
+        train_df["negative"]
+        ], ignore_index=True)
 
     user_item_features = feature_engineering(dataframes=dataframes)
-    ranking_input = build_rank_input(ratings=train_df, features=user_item_features)
+    ranking_input = build_rank_input(train_df, user_item_features)
 
     del train_df, user_item_features, dataframes
 
