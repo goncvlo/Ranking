@@ -23,6 +23,7 @@ dependencies = [
     , "pytest-benchmark"
     , "pytest-cov"
     , "pytest-timeout"
+    , "pytest-xdist"
     ]
 
 [tool.setuptools]
