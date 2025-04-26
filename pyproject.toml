@@ -1,16 +1,14 @@
-[project]
+[tool.poetry]
 name = "ranking"
 version = "0.1.0"
 description = "recsys based on ranking model"
 readme = "README.md"
 requires-python = ">=3.9"
+virtualenvs.in-project = true
 
-[tool.setuptools]
-packages = ["src"]
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+packages = [
+    { include = "src" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -48,9 +46,3 @@ markers = [
     "slow: Slow running tests",
 ]
 timeout = 300
-
-# where to find the package files.
-[tool.poetry]
-packages = [
-    { include = "src" }
-]
