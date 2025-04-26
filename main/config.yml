@@ -1,0 +1,24 @@
+data_loader:
+  path: https://files.grouplens.org/datasets/movielens/ml-100k/u.
+  sub_paths: ['data', 'user', 'item']
+model:
+  retrieval:
+      negative:
+        method: 'SVD'
+        num: 30
+      positive:
+        method: 'CoClustering'
+        num: 10
+  ranking:
+    algorithm: 'XGBRanker'
+    hyper_params:
+      booster: 'gbtree'
+      objective: 'rank:pairwise'
+      eval_metric: 'ndcg'
+      learning_rate: 0.17423319195610582
+      gamma: 2.3067834016415834
+      max_depth: 4
+      subsample: 0.7242883370125134
+      n_estimators: 376
+  path: main/artifacts/model.joblib
+         

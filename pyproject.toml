@@ -1,0 +1,45 @@
+[project]
+name = "ranking"
+version = "0.1.0"
+description = "recsys based on ranking model"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy==1.26.4"
+    , "pandas==2.2.3"
+    , "PyYAML==6.0.2"
+    , "scikit-learn==1.6.1"
+    , "xgboost==2.1.4"
+    , "optuna==4.3.0"
+    , "scikit-surprise"
+    , "matplotlib==3.10.1"
+    , "mlxtend==0.23.4"
+    , "joblib==1.4.2"
+    , "fastapi==0.115.12"
+    , "uvicorn==0.34.1"
+    , "pytest"
+    , "flake8"
+    , "black"
+    , "pytest-benchmark"
+    , "pytest-cov"
+    , "pytest-timeout"
+    , "pytest-xdist"
+    ]
+
+[tool.setuptools]
+packages = ["src"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests",
+    "performance: Performance tests",
+    "slow: Slow running tests",
+]
+timeout = 300
