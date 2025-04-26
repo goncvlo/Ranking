@@ -4,27 +4,6 @@ version = "0.1.0"
 description = "recsys based on ranking model"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "numpy==1.26.4"
-    , "pandas==2.2.3"
-    , "PyYAML==6.0.2"
-    , "scikit-learn==1.6.1"
-    , "xgboost==2.1.4"
-    , "optuna==4.3.0"
-    , "scikit-surprise"
-    , "matplotlib==3.10.1"
-    , "mlxtend==0.23.4"
-    , "joblib==1.4.2"
-    , "fastapi==0.115.12"
-    , "uvicorn==0.34.1"
-    , "pytest"
-    , "flake8"
-    , "black"
-    , "pytest-benchmark"
-    , "pytest-cov"
-    , "pytest-timeout"
-    , "pytest-xdist"
-    ]
 
 [tool.setuptools]
 packages = ["src"]
@@ -32,6 +11,30 @@ packages = ["src"]
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "1.26.4"
+pandas = "2.2.3"
+PyYAML = "6.0.2"
+scikit-learn = "1.6.1"
+xgboost = "2.1.4"
+optuna = "4.3.0"
+scikit-surprise = "*"
+matplotlib = "3.10.1"
+mlxtend = "0.23.4"
+joblib = "1.4.2"
+fastapi = "0.115.12"
+uvicorn = "0.34.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+flake8 = "*"
+black = "*"
+pytest-benchmark = "*"
+pytest-cov = "*"
+pytest-timeout = "*"
+pytest-xdist = "*"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -43,3 +46,9 @@ markers = [
     "slow: Slow running tests",
 ]
 timeout = 300
+
+# where to find the package files.
+[tool.poetry]
+packages = [
+    { include = "src" }
+]
