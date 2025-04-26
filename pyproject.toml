@@ -6,7 +6,6 @@ readme = "README.md"
 packages = [
     { include = "src" }
 ]
-virtualenvs.in-project = true
 
 # Define dependencies
 [tool.poetry.dependencies]
