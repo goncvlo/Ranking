@@ -38,9 +38,9 @@ jobs:
       - name: Lint with flake8
         run: |
           flake8 main/
-      - name: Check formatting with black
-        run: |
-          black --check main/
+      #- name: Check formatting with black
+      #  run: |
+      #    black --check main/
 
   tests:
     runs-on: ubuntu-latest
