@@ -9,8 +9,6 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    outputs:
-      cache-hit: ${{ steps.cache-poetry-deps.outputs.cache-hit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,21 +21,10 @@ jobs:
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
 
-      - name: Cache virtualenv
-        id: cache-poetry-deps
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
-
-      - name: Install dependencies if cache miss
-        if: steps.cache-poetry-deps.outputs.cache-hit != 'true'
-        run: |
-          poetry install --no-interaction
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
   lint-format:
     runs-on: ubuntu-latest
@@ -51,16 +38,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Restore virtualenv from cache
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
       - name: Lint with flake8
         run: poetry run flake8 main/
+
+      # Uncomment if you want Black formatting check too
+      # - name: Check formatting with black
+      #   run: poetry run black --check main/
 
   tests:
     runs-on: ubuntu-latest
@@ -74,13 +65,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Restore virtualenv from cache
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
       - name: Train model
         run: poetry run python -m main.train
@@ -112,13 +103,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Restore virtualenv from cache
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
       - name: Start app server
         run: |
@@ -140,13 +131,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Restore virtualenv from cache
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
       - name: Run Bandit (Security linter)
         run: poetry run bandit -r main/ -ll
