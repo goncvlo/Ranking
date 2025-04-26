@@ -35,6 +35,8 @@ pytest-benchmark = "*"
 pytest-cov = "*"
 pytest-timeout = "*"
 pytest-xdist = "*"
+bandit = "*"
+safety = "*"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
