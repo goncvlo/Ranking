@@ -7,7 +7,7 @@ from src.data.prepare import prepare_data
 from src.features.features import feature_engineering
 
 # read config
-with open(r"..\Ranking\main\config.yml", "r") as file:
+with open(r"..\main\config.yml", "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 

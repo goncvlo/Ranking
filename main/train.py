@@ -10,7 +10,7 @@ from src.models.retrieval import candidate_generation
 from src.features.utils import build_rank_input
 
 # read config
-with open(r"..\Ranking\main\config.yml", "r") as file:
+with open(r"..\main\config.yml", "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 
