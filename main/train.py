@@ -14,7 +14,7 @@ from src.features.utils import build_rank_input
 with open('..\Ranking\main\config.yml', 'r') as file:
     config=yaml.load(file, Loader= yaml.SafeLoader)
 
-def train(config: dict):
+def train(config: dict=config):
     """Train pipeline."""
 
     # load and prepare data
