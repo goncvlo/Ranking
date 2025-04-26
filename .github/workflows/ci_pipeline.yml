@@ -18,17 +18,22 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Cache pip
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Cache Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: ${{ runner.os }}-pip-
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-poetry-
 
       - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install .
+        run: poetry install --no-interaction
 
   lint-format:
     runs-on: ubuntu-latest
@@ -42,24 +47,29 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Cache pip
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Cache Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: ${{ runner.os }}-pip-
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-poetry-
 
       - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install .
+        run: poetry install --no-interaction
 
       - name: Lint with flake8
-        run: flake8 main/
+        run: poetry run flake8 main/
 
       # Uncomment if you want Black formatting check too
       # - name: Check formatting with black
-      #   run: black --check main/
+      #   run: poetry run black --check main/
 
   tests:
     runs-on: ubuntu-latest
@@ -73,30 +83,31 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Cache pip
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Cache Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: ${{ runner.os }}-pip-
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-poetry-
 
       - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install .
+        run: poetry install --no-interaction
 
       - name: Train model
-        run: |
-          cd $GITHUB_WORKSPACE
-          python -m main.train
+        run: poetry run python -m main.train
 
       - name: Run unit tests with coverage
-        run: |
-          cd $GITHUB_WORKSPACE
-          pytest --cov=main --cov-report=xml --cov-report=term --cov-fail-under=1 -m "unit" tests/
+        run: poetry run pytest --cov=main --cov-report=xml --cov-report=term --cov-fail-under=1 -m "unit" tests/
 
       - name: Run performance tests
-        run: pytest -m "performance" tests/
+        run: poetry run pytest -m "performance" tests/
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v5
@@ -119,21 +130,26 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Cache pip
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Cache Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: ${{ runner.os }}-pip-
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-poetry-
 
       - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install .
+        run: poetry install --no-interaction
 
       - name: Start app server
         run: |
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
           sleep 5
 
       - name: Health check - Ping app
@@ -151,20 +167,27 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Cache pip
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Cache Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: ${{ runner.os }}-pip-
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-poetry-
 
       - name: Install security dependencies
         run: |
-          pip install --upgrade pip
-          pip install bandit safety
+          poetry install --no-interaction
+          poetry add bandit safety --dev
 
       - name: Run Bandit (Security linter)
-        run: bandit -r main/ -ll
+        run: poetry run bandit -r main/ -ll
 
       - name: Run Safety (Dependency vulnerability checker)
-        run: safety check
+        run: poetry run safety check
