@@ -23,14 +23,14 @@ def inference(user_ids: list, config: dict = config) -> pd.DataFrame:
 
     # generate candidates from all the missing items
     candidates = pd.MultiIndex.from_product(
-        [dataframes['data']['user_id'].unique()
-         , dataframes['data']['item_id'].unique()]
-        , names=['user_id', 'item_id']
+        [dataframes['data']['user_id'].unique(),
+         dataframes['data']['item_id'].unique()],
+         names=['user_id', 'item_id']
         ).to_frame(index=False)
 
     candidates = candidates.merge(
-        dataframes['data'][['user_id', 'item_id']].copy()
-        , on=['user_id', 'item_id'], how='left', indicator=True
+        dataframes['data'][['user_id', 'item_id']].copy(),
+        on=['user_id', 'item_id'], how='left', indicator=True
         )
 
     candidates = candidates[

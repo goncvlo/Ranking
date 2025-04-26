@@ -26,9 +26,9 @@ def train(config: dict = config):
         dataframes['data'], config['model']['retrieval']
         )
     train_df = pd.concat([
-        dataframes['data'].iloc[:,:3]
-        , train_df['positive']
-        , train_df['negative']
+        dataframes['data'].iloc[:,:3],
+        train_df['positive'],
+        train_df['negative']
         ], ignore_index=True)
 
     user_item_features = feature_engineering(dataframes=dataframes)
@@ -41,9 +41,9 @@ def train(config: dict = config):
     # build and save model
     model = XGBRanker(**config['model']['ranking']['hyper_params'])
     model.fit(
-        ranking_input['X'], ranking_input['y'].astype(int)
-        , group=ranking_input['group']
-        , verbose=False
+        ranking_input['X'], ranking_input['y'].astype(int),
+        group=ranking_input['group'],
+        verbose=False
         )
     joblib.dump(model, config['model']['path'])
 
