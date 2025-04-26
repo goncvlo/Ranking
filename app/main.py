@@ -6,6 +6,14 @@ from main.inference import inference
 
 app = FastAPI(title="Recommendation API")
 
+@app.get("/health")
+def health_check():
+    try:
+        # Optional: ping your model loading logic here if needed
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "details": str(e)}
+
 @app.get("/")
 def root():
     return {"message": "Welcome to the Recommendation API!"}
