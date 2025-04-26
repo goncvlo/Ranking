@@ -10,7 +10,7 @@ from src.models.retrieval import candidate_generation
 from src.features.utils import build_rank_input
 
 # read config
-with open(r'..\Ranking\main\config.yml', 'r') as file:
+with open(r"..\Ranking\main\config.yml", "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 
@@ -18,34 +18,30 @@ def train(config: dict = config):
     """Train pipeline."""
 
     # load and prepare data
-    dataframes = load_data(config=config['data_loader'])
+    dataframes = load_data(config=config["data_loader"])
     dataframes = prepare_data(dataframes=dataframes)
 
     # generate candidates and create user-item features
-    train_df = candidate_generation(
-        dataframes['data'], config['model']['retrieval']
-        )
-    train_df = pd.concat([
-        dataframes['data'].iloc[:, :3],
-        train_df['positive'],
-        train_df['negative']
-        ], ignore_index=True)
+    train_df = candidate_generation(dataframes["data"], config["model"]["retrieval"])
+    train_df = pd.concat(
+        [dataframes["data"].iloc[:, :3], train_df["positive"], train_df["negative"]],
+        ignore_index=True,
+    )
 
     user_item_features = feature_engineering(dataframes=dataframes)
-    ranking_input = build_rank_input(
-        ratings=train_df, features=user_item_features
-        )
+    ranking_input = build_rank_input(ratings=train_df, features=user_item_features)
 
     del train_df, user_item_features, dataframes
 
     # build and save model
-    model = XGBRanker(**config['model']['ranking']['hyper_params'])
+    model = XGBRanker(**config["model"]["ranking"]["hyper_params"])
     model.fit(
-        ranking_input['X'], ranking_input['y'].astype(int),
-        group=ranking_input['group'],
-        verbose=False
-        )
-    joblib.dump(model, config['model']['path'])
+        ranking_input["X"],
+        ranking_input["y"].astype(int),
+        group=ranking_input["group"],
+        verbose=False,
+    )
+    joblib.dump(model, config["model"]["path"])
 
 
 if __name__ == "__main__":
