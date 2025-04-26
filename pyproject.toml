@@ -18,6 +18,12 @@ dependencies = [
     , "joblib==1.4.2"
     , "fastapi==0.115.12"
     , "uvicorn==0.34.1"
+    , "pytest"
+    , "flake8"
+    , "black"
+    , "pytest-benchmark"
+    , "pytest-cov"
+    , "pytest-timeout"
     ]
 
 [tool.setuptools]
@@ -26,3 +32,14 @@ packages = ["src"]
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests",
+    "performance: Performance tests",
+    "slow: Slow running tests",
+]
+timeout = 300
