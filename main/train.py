@@ -5,16 +5,16 @@ import joblib
 
 from src.data.load import load_data
 from src.data.prepare import prepare_data
-from src.models.cv_iterator import leave_last_k
 from src.features.features import feature_engineering
 from src.models.retrieval import candidate_generation
 from src.features.utils import build_rank_input
 
 # read config
-with open('..\Ranking\main\config.yml', 'r') as file:
-    config=yaml.load(file, Loader= yaml.SafeLoader)
+with open(r'..\Ranking\main\config.yml', 'r') as file:
+    config = yaml.load(file, Loader=yaml.SafeLoader)
 
-def train(config: dict=config):
+
+def train(config: dict = config):
     """Train pipeline."""
 
     # load and prepare data
@@ -22,14 +22,19 @@ def train(config: dict=config):
     dataframes = prepare_data(dataframes=dataframes)
 
     # generate candidates and create user-item features
-    train_df = candidate_generation(dataframes['data'], config['model']['retrieval'])
-    train_df = pd.concat(
-        [dataframes['data'].iloc[:,:3], train_df['positive'], train_df['negative']]
-        , ignore_index=True
+    train_df = candidate_generation(
+        dataframes['data'], config['model']['retrieval']
         )
+    train_df = pd.concat([
+        dataframes['data'].iloc[:,:3]
+        , train_df['positive']
+        , train_df['negative']
+        ], ignore_index=True)
 
     user_item_features = feature_engineering(dataframes=dataframes)
-    ranking_input = build_rank_input(ratings=ranking_input, features=user_item_features)
+    ranking_input = build_rank_input(
+        ratings=train_df, features=user_item_features
+        )
 
     del train_df, user_item_features, dataframes
 
@@ -41,6 +46,7 @@ def train(config: dict=config):
         , verbose=False
         )
     joblib.dump(model, config['model']['path'])
+
 
 if __name__ == "__main__":
     train(config)
