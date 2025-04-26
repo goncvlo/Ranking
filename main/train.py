@@ -1,3 +1,4 @@
+from pathlib import Path
 import yaml
 import pandas as pd
 from xgboost import XGBRanker
@@ -10,7 +11,8 @@ from src.models.retrieval import candidate_generation
 from src.features.utils import build_rank_input
 
 # read config
-with open(r"..\main\config.yml", "r") as file:
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
+with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 

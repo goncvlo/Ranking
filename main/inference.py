@@ -1,3 +1,4 @@
+from pathlib import Path
 import yaml
 import pandas as pd
 import joblib
@@ -7,7 +8,8 @@ from src.data.prepare import prepare_data
 from src.features.features import feature_engineering
 
 # read config
-with open(r"..\main\config.yml", "r") as file:
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
+with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 
