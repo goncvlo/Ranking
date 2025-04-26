@@ -20,5 +20,5 @@ model:
       max_depth: 4
       subsample: 0.7242883370125134
       n_estimators: 376
-  path: ..\Ranking\main\artifacts\model.joblib
+  path: main/artifacts/model.joblib
          
