@@ -3,8 +3,10 @@ name = "ranking"
 version = "0.1.0"
 description = "Recsys based on ranking model"
 readme = "README.md"
-authors = ["Your Name <yourname@example.com>"]
-license = "MIT"
+packages = [
+    { include = "src" }
+]
+virtualenvs.in-project = true
 
 # Define dependencies
 [tool.poetry.dependencies]
@@ -45,9 +47,3 @@ markers = [
     "slow: Slow running tests",
 ]
 timeout = 300
-
-# Define the package location
-[tool.poetry]
-packages = [
-    { include = "src" }
-]
