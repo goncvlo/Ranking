@@ -13,15 +13,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+      - name: Setup Python and Poetry
+        uses: ./.github/actions/setup-python-poetry
 
       - name: Cache Poetry dependencies
         uses: actions/cache@v4
@@ -35,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: Upload project and virtualenv
+      - name: Upload project
         uses: actions/upload-artifact@v4
         with:
           name: project
@@ -53,22 +46,11 @@ jobs:
         with:
           name: project
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+      - name: Setup Python and Poetry
+        uses: ./.github/actions/setup-python-poetry
 
       - name: Lint with flake8
         run: poetry run flake8 main/
-
-      # Uncomment if you want Black formatting check too
-      # - name: Check formatting with black
-      #   run: poetry run black --check main/
 
   tests:
     runs-on: ubuntu-latest
@@ -79,15 +61,8 @@ jobs:
         with:
           name: project
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+      - name: Setup Python and Poetry
+        uses: ./.github/actions/setup-python-poetry
 
       - name: Train model
         run: poetry run python -m main.train
@@ -116,15 +91,8 @@ jobs:
         with:
           name: project
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+      - name: Setup Python and Poetry
+        uses: ./.github/actions/setup-python-poetry
 
       - name: Start app server
         run: |
@@ -143,15 +111,8 @@ jobs:
         with:
           name: project
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+      - name: Setup Python and Poetry
+        uses: ./.github/actions/setup-python-poetry
 
       - name: Run Bandit (Security linter)
         run: poetry run bandit -r main/ -ll
