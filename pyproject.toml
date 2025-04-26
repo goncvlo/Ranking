@@ -46,3 +46,9 @@ markers = [
     "slow: Slow running tests",
 ]
 timeout = 300
+
+# where to find the package files.
+[tool.poetry]
+packages = [
+    { include = "src" }
+]
