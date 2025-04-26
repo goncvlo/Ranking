@@ -12,7 +12,6 @@ dependencies = [
     , "xgboost==2.1.4"
     , "optuna==4.3.0"
     , "scikit-surprise"
-    , "lightfm"
     , "matplotlib==3.10.1"
     , "mlxtend==0.23.4"
     , "joblib==1.4.2"
