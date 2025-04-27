@@ -4,21 +4,9 @@ import pandas as pd
 
 from main.inference import inference
 
-app = FastAPI(title="Recommendation API")
+api = FastAPI(title="Recommendation API")
 
-@app.get("/health")
-def health_check():
-    try:
-        # Optional: ping your model loading logic here if needed
-        return {"status": "ok"}
-    except Exception as e:
-        return {"status": "error", "details": str(e)}
-
-@app.get("/")
-def root():
-    return {"message": "Welcome to the Recommendation API!"}
-
-@app.get("/recommend")
+@api.get("/recommend")
 def recommend(user_ids: List[int] = Query(...)):
     """
     Get top-N recommendations for a list of user_ids.
@@ -26,3 +14,15 @@ def recommend(user_ids: List[int] = Query(...)):
     """
     results = inference(user_ids=user_ids)
     return results.to_dict(orient="records")
+
+@api.get("/")
+def root():
+    return {"message": "Welcome to the Recommendation API!"}
+
+@api.get("/health")
+def health_check():
+    try:
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "details": str(e)}
+    
