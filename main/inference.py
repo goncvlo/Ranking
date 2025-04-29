@@ -13,14 +13,13 @@ with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 
-def inference(user_ids: list, config: dict = config) -> pd.DataFrame:
+def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     """Inference pipeline."""
     # load and prepare data
     dataframes = load_data(config=config["data_loader"])
     dataframes = prepare_data(dataframes=dataframes)
 
-    subset_cond = set(user_ids).issubset(set(dataframes["user"]["user_id"]))
-    if not user_ids or subset_cond:
+    if user_id not in dataframes['user']['user_id'].unique():
         return pd.DataFrame(columns=["user_id", "item_id", "score"])
 
     # generate candidates from all the missing items
@@ -41,7 +40,7 @@ def inference(user_ids: list, config: dict = config) -> pd.DataFrame:
 
     candidates = candidates[
         (candidates["_merge"] == "left_only")
-        & (candidates["user_id"].isin(user_ids))
+        & (candidates["user_id"] == user_id)
     ][["user_id", "item_id"]]
 
     # create features

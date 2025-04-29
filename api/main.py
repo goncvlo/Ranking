@@ -1,23 +1,35 @@
-from fastapi import FastAPI, Query
-from typing import List
+from fastapi import FastAPI
 import pandas as pd
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from main.inference import inference
 
-api = FastAPI(title="Recommendation API")
+api = FastAPI(title="Ranking (RecSys) API")
+# CORS is needed
+api.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @api.get("/recommend")
-def recommend(user_ids: List[int] = Query(...)):
-    """
-    Get top-N recommendations for a list of user_ids.
-    Example: /recommend?user_ids=101&user_ids=202&top_n=5
-    """
-    results = inference(user_ids=user_ids)
+def recommend(user_id: int):
+    """Top-3 recommendations for a single user_id."""
+    # call the inference function with a single user_id
+    results = inference(user_id=user_id)
+
+    if results.empty:
+        return {"message": f"No recommendations found for user {user_id}"}
+
     return results.to_dict(orient="records")
 
 @api.get("/")
 def root():
-    return {"message": "Welcome to the Recommendation API!"}
+    return {"message": "Welcome to the Ranking (RecSys) API!"}
 
 @api.get("/health")
 def health_check():
@@ -25,4 +37,3 @@ def health_check():
         return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "details": str(e)}
-    

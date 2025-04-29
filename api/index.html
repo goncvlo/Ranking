@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Po0rfL1x</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .container {
+            width: 320px;
+            max-width: 90%;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #000;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        }
+
+        #logo {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 20px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .clip-letter {
+            font-size: 28px;
+            font-weight: bold;
+            display: inline-block;
+            padding: 4px 6px;
+            background-color: white;
+            color: black;
+            transform: rotate(calc(var(--rotate, 0deg)));
+            font-family: 'Impact', 'Arial Black', sans-serif;
+        }
+
+        .input-field {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 90%;
+            padding: 10px;
+            background-color: #e50914;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        button:hover:enabled {
+            background-color: #f40612;
+        }
+
+        .recommendations {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .recommendation {
+            margin: 5px 0;
+            padding: 8px;
+            background-color: #1c1c1c;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+
+        #spinner {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #e50914;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="logo">
+            <span class="clip-letter" style="--rotate: -5deg">P</span>
+            <span class="clip-letter" style="--rotate: 3deg">o</span>
+            <span class="clip-letter" style="--rotate: -4deg">0</span>
+            <span class="clip-letter" style="--rotate: 6deg">r</span>
+            <span class="clip-letter" style="--rotate: -7deg">f</span>
+            <span class="clip-letter" style="--rotate: 2deg">L</span>
+            <span class="clip-letter" style="--rotate: -3deg">1</span>
+            <span class="clip-letter" style="--rotate: 5deg">x</span>
+        </div>
+
+        <input id="user-id" type="number" class="input-field" placeholder="Enter User ID" />
+        <button id="get-btn" onclick="getRecommendations()">Get Recommendations</button>
+
+        <div id="spinner"><div class="loader"></div></div>
+
+        <div id="recommendations" class="recommendations"></div>
+    </div>
+
+    <script>
+        async function getRecommendations() {
+            const userId = document.getElementById('user-id').value;
+            const button = document.getElementById('get-btn');
+            const spinner = document.getElementById('spinner');
+            const recommendationsDiv = document.getElementById('recommendations');
+            
+            if (!userId) {
+                alert('Please enter a User ID');
+                return;
+            }
+
+            // Disable button and show spinner
+            button.disabled = true;
+            spinner.style.display = 'block';
+            recommendationsDiv.innerHTML = '';
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/recommend?user_id=${userId}`);
+                const recommendations = await response.json();
+
+                if (recommendations.length === 0 || recommendations.message) {
+                    recommendationsDiv.innerHTML = '<p>No recommendations found for this User ID.</p>';
+                } else {
+                    recommendations.forEach((rec) => {
+                        const recommendationElement = document.createElement('div');
+                        recommendationElement.className = 'recommendation';
+                        recommendationElement.innerText = `Item ID: ${rec.item_id}, Score: ${rec.score.toFixed(2)}`;
+                        recommendationsDiv.appendChild(recommendationElement);
+                    });
+                }
+            } catch (error) {
+                recommendationsDiv.innerHTML = '<p>Failed to fetch recommendations.</p>';
+                console.error(error);
+            } finally {
+                button.disabled = false;
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+</html>
