@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+#from pydantic import BaseModel
 
 from main.inference import inference
 
 api = FastAPI(title="Ranking (RecSys) API")
-# CORS is needed
 api.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,7 +18,6 @@ api.add_middleware(
 @api.get("/recommend")
 def recommend(user_id: int):
     """Top-3 recommendations for a single user_id."""
-    # call the inference function with a single user_id
     results = inference(user_id=user_id)
 
     if results.empty:
