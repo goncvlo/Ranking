@@ -2,6 +2,7 @@
 name = "ranking"
 version = "0.1.0"
 description = "Recsys based on ranking model"
+authors = ["Bob"]
 readme = "README.md"
 packages = [
     { include = "src" }
@@ -22,6 +23,7 @@ mlxtend = "0.23.4"
 joblib = "1.4.2"
 fastapi = "0.115.12"
 uvicorn = "0.34.1"
+gunicorn = "^21.2"
 
 # Development dependencies
 [tool.poetry.group.dev.dependencies]
