@@ -3,8 +3,6 @@ name: CI/CD Pipeline for Ranking Model App
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   setup:
@@ -179,4 +177,3 @@ jobs:
             --region ${{ secrets.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated
-            
