@@ -3,8 +3,6 @@ name: CI/CD Pipeline for Ranking Model App
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   setup:
@@ -168,6 +166,17 @@ jobs:
         run: |
           docker build -t europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest .
 
+      # check
+      - name: Debug gcloud auth
+        run: |
+          gcloud auth list
+          gcloud config list
+          gcloud config get-value project
+
+      - name: List Artifact Registry repos
+        run: gcloud artifacts repositories list --location=${{ secrets.GCP_REGION }}
+        # check end
+      
       - name: Push Docker image to Artifact Registry
         run: |
           docker push europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest
@@ -179,4 +188,3 @@ jobs:
             --region ${{ secrets.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated
-            
