@@ -162,20 +162,20 @@ jobs:
 
       - name: Configure Docker for Artifact Registry
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
+          gcloud auth configure-docker europe-southwest1-docker.pkg.dev
 
       - name: Build Docker image
         run: |
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest .
+          docker build -t europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest .
 
       - name: Push Docker image to Artifact Registry
         run: |
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest
+          docker push europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ranking-model \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest \
+            --image europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-model-repo/ranking-model:latest \
             --region ${{ secrets.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated
