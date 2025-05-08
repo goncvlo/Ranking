@@ -152,7 +152,7 @@
             recommendationsDiv.innerHTML = '';
 
             try {
-                const response = await fetch(`http://127.0.0.1:8000/recommend?user_id=${userId}`);
+                const response = await fetch(`https://ranking-model-920560695820.europe-southwest1.run.app/recommend?user_id=${userId}`);
                 const recommendations = await response.json();
 
                 if (recommendations.length === 0 || recommendations.message) {
