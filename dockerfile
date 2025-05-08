@@ -30,4 +30,4 @@ WORKDIR /api
 COPY . .
 
 # run the app using Gunicorn with Uvicorn workers
-CMD ["gunicorn", "api.main:api", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8000"]
+CMD ["gunicorn", "api.main:api", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8080"]
