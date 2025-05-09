@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for Ranking Model App
+name: CI/CD Pipeline
 
 on:
   push:
@@ -153,18 +153,18 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+        run: gcloud auth configure-docker europe-southwest1-docker.pkg.dev
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-repo/ranking-model:latest .
+        run: docker build -t europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-repo/ranking-model:latest .
 
       - name: Push Docker image to Artifact Registry
-        run: docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-repo/ranking-model:latest
+        run: docker push europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-repo/ranking-model:latest
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ranking-model \
-            --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-repo/ranking-model:latest \
-            --region ${{ secrets.GCP_REGION }} \
+            --image europe-southwest1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ranking-repo/ranking-model:latest \
+            --region europe-southwest1 \
             --platform managed \
             --allow-unauthenticated
