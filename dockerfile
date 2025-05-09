@@ -24,10 +24,10 @@ RUN poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi --no-dev
 
 # working directory for app code
-WORKDIR /api
+WORKDIR /main
 
 # copy rest of the application code into container
 COPY . .
 
 # run the app using Gunicorn with Uvicorn workers
-CMD ["gunicorn", "api.main:api", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8080"]
+CMD ["gunicorn", "main.fastapi:api", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8080"]
