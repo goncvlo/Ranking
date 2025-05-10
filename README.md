@@ -7,7 +7,10 @@ The dataset used is `ml-100k`, from MovieLens, which consists of "(...) 100,000 
 link > https://spiffy-dragon-2cdc30.netlify.app/
 
 #### :test_tube: Work
-Add some text here!
+Inspired by [modern industrial recommender systems](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf), this recommeder has a multi-stage architecture - **Candidate Generation** and **Ranking**.
+
+- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. This step uses positive and negative sampling strategies with collaborative filtering methods such as SVD and Co-Clustering to efficiently generate candidate sets. The goal is to reduce the search space while preserving as many relevant items as possible.
+- In the 2nd stage, a more expressive model ranks the candidate movies by predicting their relevance for each user. The ranker is optimized to maximize NDCG, focusing on delivering high-precision, highly personalized recommendations.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/37317043-fefb-4ecb-b791-3ef1641eea15" />
@@ -34,7 +37,8 @@ NDCG@5 results:
 - [Candidate retrieval] Add content-based recommendations to mitigate cold-start problem
 - [Implicit feedback conversion] Binarize ratings (e.g. rating>=4)
 - [Scalability] Test ml-1m datset
-- [Frontend] Add movie titles, poster and link to trailer
+- [Frontend] Add movie title, poster and link to trailer
 
 #### :handshake: References
 - [MovieLens Dataset](https://grouplens.org/datasets/movielens/100k/)
+- [Multi-stage Architecture](https://medium.com/nvidia-merlin/recommender-systems-not-just-recommender-models-485c161c755e)
