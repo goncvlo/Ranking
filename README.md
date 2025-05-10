@@ -1,7 +1,5 @@
 # Ranking
 
-[![CI/CD](https://github.com/6oncvlo/Ranking/tree/main/.github/workflows/ci_cd.yml/badge.svg)](https://github.com/6oncvlo/Ranking/actions)
-
 Ranking is a project that explores `learning to rank techniques` in the context of `artificial intelligence` to build a scalable, reliable and accurate recommender system.
 The dataset used is `ml-100k`, from MovieLens, which consists of "(...) 100,000 ratings (1-5) from 943 users on 1682 movies (...)".
 
