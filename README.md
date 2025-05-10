@@ -34,6 +34,7 @@ NDCG@5 results:
 - [Candidate retrieval] Add content-based recommendations to mitigate cold-start problem
 - [Implicit feedback conversion] Binarize ratings (e.g. rating>=4)
 - [Scalability] Test ml-1m datset
+- [Frontend] Add movie titles, poster and link to trailer
 
 #### :handshake: References
 - [MovieLens Dataset](https://grouplens.org/datasets/movielens/100k/)
