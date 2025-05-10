@@ -1,5 +1,7 @@
 # Ranking
 
+[![CI/CD](https://github.com/6oncvlo/Ranking/tree/main/.github/workflows/ci_cd.yml/badge.svg)](https://github.com/6oncvlo/Ranking/actions)
+
 Ranking is a project that explores `learning to rank techniques` in the context of `artificial intelligence` to build a scalable, reliable and accurate recommender system.
 The dataset used is `ml-100k`, from MovieLens, which consists of "(...) 100,000 ratings (1-5) from 943 users on 1682 movies (...)".
 
@@ -27,6 +29,13 @@ This evaluation focuses only on how well the model ranks the items relative to e
 NDCG@5 results:
 - Baseline: 91.7%
 - Ranker: 94.8%
+
+#### :rocket: Deployment
+
+#### :hourglass_flowing_sand: Future Work
+- [Candidate retrieval] Add content-based recommendations to mitigate cold-start problem
+- [Implicit feedback conversion] Binarize ratings (e.g. rating>=4)
+- [Scalability] Test ml-1m datset
 
 #### :handshake: References
 - [MovieLens Dataset](https://grouplens.org/datasets/movielens/100k/)
