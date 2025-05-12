@@ -10,7 +10,7 @@ link > https://spiffy-dragon-2cdc30.netlify.app/
 Inspired by [modern industrial recommender systems](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf), this recommeder has a multi-stage architecture - **Candidate Generation** and **Ranking**.
 
 - The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. This step leverages negative sampling through collaborative filtering methods such as SVD and Co-Clustering to efficiently generate candidate sets. The goal is to reduce the search space while preserving as many relevant items as possible.
-- In the 2nd stage, a more expressive model ranks the candidate movies by predicting their relevance for each user. The ranker is optimized to maximize NDCG, focusing on delivering high-precision, highly personalized recommendations.
+- In the 2nd stage, a predictive model ranks the candidate movies based on estimated relevance scores for each user. The ranking process is trained to optimize the Normalized Discounted Cumulative Gain (NDCG) metric, which emphasizes the placement of relevant items higher in the ranked list.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/37317043-fefb-4ecb-b791-3ef1641eea15" />
