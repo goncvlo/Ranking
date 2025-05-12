@@ -1,6 +1,6 @@
 import pandas as pd
-from xgboost import XGBRanker
 import optuna
+from src.models.ranker import Ranker
 from src.models.evaluator import evaluation
 
 class BayesianSearch:
@@ -19,7 +19,7 @@ class BayesianSearch:
         
         # set suggested hyper-parameters
         hyperparams = self._suggest_hyperparams(trial)
-        clf = XGBRanker(**hyperparams)
+        clf = Ranker(algorithm=self.algorithm, params=hyperparams).model
         
         # fit the model with early stopping if needed
         clf.fit(
