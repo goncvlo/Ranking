@@ -27,7 +27,6 @@ class BayesianSearch:
             , group=df_train['group']
             #, eval_set=[(df_valid['X'], df_valid['y'])]
             #, eval_group=[df_valid['group']], early_stopping_rounds=50
-            , verbose=False
         )
 
         # compute predictions and evaluate
