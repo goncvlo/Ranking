@@ -9,7 +9,7 @@ link > https://spiffy-dragon-2cdc30.netlify.app/
 #### :test_tube: Work
 Inspired by [modern industrial recommender systems](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf), this recommeder has a multi-stage architecture - **Candidate Generation** and **Ranking**.
 
-- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. This step uses positive and negative sampling strategies with collaborative filtering methods such as SVD and Co-Clustering to efficiently generate candidate sets. The goal is to reduce the search space while preserving as many relevant items as possible.
+- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. This step leverages negative sampling through collaborative filtering methods such as SVD and Co-Clustering to efficiently generate candidate sets. The goal is to reduce the search space while preserving as many relevant items as possible.
 - In the 2nd stage, a more expressive model ranks the candidate movies by predicting their relevance for each user. The ranker is optimized to maximize NDCG, focusing on delivering high-precision, highly personalized recommendations.
 
 <p align="center">
@@ -30,13 +30,13 @@ This evaluation focuses only on how well the model ranks the items relative to e
 | Algorithm        | NDCG@5 |
 |------------------|----------|
 | Baseline | 0.917 |
-| **XGBRanker** :trophy: | 0.948 |
+| **XGBRanker** :trophy: | 0.954 |
 
 #### :rocket: Deployment
 
 #### :hourglass_flowing_sand: Future Work
-- [Candidate retrieval] Add content-based recommendations to mitigate cold-start problem
-- [Implicit feedback conversion] Binarize ratings (e.g. rating>=4)
+- [Candidate retrieval] Add content-based recommendations
+- [Implicit feedback] Binarize ratings (e.g. rating>=4)
 - [Scalability] Test ml-1m datset
 - [Frontend] Add movie title, poster and link to trailer
 
