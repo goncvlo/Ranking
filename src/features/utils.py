@@ -16,6 +16,6 @@ def build_rank_input(
         .merge(features['item'], on='item_id', how='left')
         .drop(columns=['user_id', 'item_id', 'rating'])
         )
-    data['y'] = ratings['rating']
+    data['y'] = ratings['rating'].round().astype(int)
 
     return data
