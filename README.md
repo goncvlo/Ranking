@@ -27,9 +27,10 @@ Inspired by [modern industrial recommender systems](https://static.googleusercon
 *Note:*
 This evaluation focuses only on how well the model ranks the items relative to each other (measured by ranking metrics like NDCG). It does not capture other aspects like diversity (novelty) or coverage (how repetitive or varied the recommendations are).
 
-NDCG@5 results:
-- Baseline: 91.7%
-- Ranker: 94.8%
+| Algorithm        | NDCG@5 |
+|------------------|----------|
+| Baseline | 0.917 |
+| **XGBRanker** :trophy: | 0.948 |
 
 #### :rocket: Deployment
 
