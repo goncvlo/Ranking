@@ -183,7 +183,7 @@
                     recommendations.forEach((rec) => {
                         const recommendationElement = document.createElement('div');
                         recommendationElement.className = 'recommendation';
-                        recommendationElement.innerText = `Item ID: ${rec.item_id}, Title: ${rec.movie_title}`;
+                        recommendationElement.innerText = rec.movie_title;
                         recommendationsDiv.appendChild(recommendationElement);
                     });
                 }
