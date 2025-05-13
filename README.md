@@ -4,6 +4,10 @@ Ranking is a project that explores `learning to rank techniques` in the context 
 The dataset used is `ml-100k`, from MovieLens, which consists of "(...) 100,000 ratings (1-5) from 943 users on 1682 movies (...)".
 
 #### :popcorn: App
+Movie recommendation app that suggests 3 personalized movies for each user.
+Easily accessible via a web API, deployed with FastAPI, Docker, and Google Cloud.
+
+
 link > https://spiffy-dragon-2cdc30.netlify.app/
 
 #### :test_tube: Work
@@ -35,10 +39,9 @@ This evaluation focuses only on how well the model ranks the items relative to e
 #### :rocket: Deployment
 
 #### :hourglass_flowing_sand: Future Work
-- [Candidate retrieval] Add content-based recommendations
+- [Modeling] Add content-based candidates & try other rankers
 - [Implicit feedback] Binarize ratings (e.g. rating>=4)
 - [Scalability] Test ml-1m datset
-- [Frontend] Add movie title, poster and link to trailer
 
 #### :handshake: References
 - [MovieLens Dataset](https://grouplens.org/datasets/movielens/100k/)
