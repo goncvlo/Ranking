@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
-#from pydantic import BaseModel
+# from pydantic import BaseModel
 
 from main.inference import inference
 
@@ -25,9 +24,11 @@ def recommend(user_id: int):
 
     return results.to_dict(orient="records")
 
+
 @api.get("/")
 def root():
     return {"message": "Welcome to the Ranking (RecSys) API!"}
+
 
 @api.get("/health")
 def health_check():
