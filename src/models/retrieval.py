@@ -4,8 +4,8 @@ from collections import defaultdict
 
 # supported algorithms
 algorithms = {
-    'SVD': SVD()
-    , 'CoClustering': CoClustering()
+    'SVD': SVD(random_state=42)
+    , 'CoClustering': CoClustering(random_state=42)
 }
 
 def candidate_generation(df: pd.DataFrame, config: dict[str, str | int]) -> pd.DataFrame:
