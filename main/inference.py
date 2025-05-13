@@ -20,9 +20,9 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     dataframes = prepare_data(dataframes=dataframes)
 
     if user_id not in dataframes['user']['user_id'].unique():
-        return pd.DataFrame(columns=["user_id", "item_id", "score"])
+        return pd.DataFrame(columns=["user_id", "item_id", "movie_title"])
 
-    # generate candidates from all the missing items
+    # get candidates through anti-train set
     candidates = pd.MultiIndex.from_product(
         [
             dataframes["data"]["user_id"].unique(),
@@ -48,7 +48,7 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     candidates = candidates.merge(
         user_item_features["user"], how="left", on="user_id"
     ).merge(user_item_features["item"], how="left", on="item_id")
-    del user_item_features, dataframes
+    del user_item_features
 
     # load model and get top-3 recommendations
     clf = joblib.load(config["model"]["path"])
@@ -59,7 +59,10 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
 
     candidates = (
         candidates.sort_values(["user_id", "score"], ascending=[True, False])
-        .groupby("user_id")
-        .head(3)[["user_id", "item_id", "score"]]
+        .groupby("user_id").head(3)[["user_id", "item_id"]]
+        .merge(
+            dataframes["item"][["item_id", "movie_title"]],
+            how="left", on="item_id"
+            )
     )
     return candidates
