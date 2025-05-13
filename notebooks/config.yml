@@ -1,6 +1,7 @@
 data_loader:
   path: https://files.grouplens.org/datasets/movielens/ml-100k/u.
   sub_paths: ['data', 'user', 'item']
+
 optimization:
   leave_last_k: 5
   retrieval:
@@ -16,6 +17,8 @@ optimization:
         booster: 'gbtree'
         objective: 'rank:pairwise'
         eval_metric: 'ndcg'
+        random_state: 42
+        verbose: False
       tunable:
         learning_rate: [0.001, 0.5]
         gamma: [0, 10]
@@ -23,4 +26,32 @@ optimization:
         subsample: [0.5, 1]
         n_estimators: [50, 400]
       float_params: ['learning_rate', 'gamma', 'subsample']
-      
+
+    LGBMRanker:
+      fixed:
+        objective: 'lambdarank'
+        eval_metric: 'ndcg'
+        boosting_type: 'gbdt'
+        random_state: 42
+      tunable:
+        learning_rate: [0.001, 0.5]
+        num_leaves: [15, 255]
+        max_depth: [3, 15]
+        subsample: [0.5, 1]
+        n_estimators: [50, 400]
+        min_child_samples: [5, 50]
+      float_params: ['learning_rate', 'subsample']
+
+    CatBoostRanker:
+      fixed:
+        loss_function: 'YetiRank'
+        eval_metric: 'NDCG'
+        task_type: 'CPU'
+        random_state: 42
+      tunable:
+        learning_rate: [0.001, 0.5]
+        depth: [4, 10]
+        l2_leaf_reg: [1, 10]
+        n_estimators: [50, 400]
+        bagging_temperature: [0, 1]
+      float_params: ['learning_rate', 'l2_leaf_reg', 'bagging_temperature']

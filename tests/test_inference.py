@@ -10,7 +10,7 @@ def test_inference_output_type():
 @pytest.mark.unit
 def test_inference_output_columns():
     result = inference(user_id=2)
-    assert list(result.columns) == ['user_id', 'item_id', 'score']
+    assert list(result.columns) == ['user_id', 'item_id', 'movie_title']
 
 @pytest.mark.unit
 def test_inference_number_of_recommendations():

@@ -1,7 +1,6 @@
 from pathlib import Path
 import yaml
 import pandas as pd
-from xgboost import XGBRanker
 import joblib
 
 from src.data.load import load_data
@@ -9,6 +8,7 @@ from src.data.prepare import prepare_data
 from src.features.features import feature_engineering
 from src.models.retrieval import candidate_generation
 from src.features.utils import build_rank_input
+from src.models.ranker import Ranker
 
 # read config
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
@@ -39,12 +39,14 @@ def train(config: dict = config):
     del train_df, user_item_features, dataframes
 
     # build and save model
-    model = XGBRanker(**config["model"]["ranking"]["hyper_params"])
+    model = Ranker(
+        algorithm=config['model']['ranking']['algorithm'],
+        params=config["model"]["ranking"]["hyper_params"]
+        )
     model.fit(
         ranking_input["X"],
-        ranking_input["y"].astype(int),
-        group=ranking_input["group"],
-        verbose=False,
+        ranking_input["y"],
+        group=ranking_input["group"]
     )
     joblib.dump(model, config["model"]["path"])
 
