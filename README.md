@@ -10,8 +10,12 @@ The dataset used is `ml-100k`, from MovieLens, which consists of "(...) 100,000 
 Movie recommendation app that suggests 3 personalized movies for each user.
 Easily accessible via a web API, deployed with FastAPI, Docker, and Google Cloud.
 
+**Visit https://ranking-recsys-ui.netlify.app/**
 
-link > https://ranking-recsys-ui.netlify.app/
+
+https://github.com/user-attachments/assets/6a8eccad-a60a-41ef-ae79-1d8babc2f60c
+
+
 
 #### :test_tube: Work
 Inspired by [modern industrial recommender systems](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf), this recommeder has a multi-stage architecture - **Candidate Generation** and **Ranking**.
