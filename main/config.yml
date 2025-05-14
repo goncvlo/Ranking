@@ -1,6 +1,7 @@
 data_loader:
-  path: https://files.grouplens.org/datasets/movielens/ml-100k/u.
+  path: 'src/data/datasets'
   sub_paths: ['data', 'user', 'item']
+  
 model:
   retrieval:
       negative:
@@ -9,6 +10,7 @@ model:
       positive:
         method: 'CoClustering'
         num: 10
+
   ranking:
     algorithm: 'XGBRanker'
     hyper_params:
@@ -21,5 +23,6 @@ model:
       subsample: 0.7242883370125134
       n_estimators: 376
       random_state: 42
+      
   path: main/artifacts/model.joblib
          

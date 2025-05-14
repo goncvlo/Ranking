@@ -1,5 +1,5 @@
 data_loader:
-  path: https://files.grouplens.org/datasets/movielens/ml-100k/u.
+  path: '../src/data/datasets'
   sub_paths: ['data', 'user', 'item']
 
 optimization:
