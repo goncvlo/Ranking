@@ -1,6 +1,5 @@
 from xgboost import XGBRanker
 from lightgbm import LGBMRanker
-#from catboost import CatBoostRanker, Pool
 
 # supported algorithms
 algorithms = {
