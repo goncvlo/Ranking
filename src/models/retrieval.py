@@ -1,22 +1,47 @@
 import pandas as pd
-from surprise import Dataset, Reader, SVD, CoClustering
+from surprise import SVD, CoClustering
 from collections import defaultdict
+
+from src.data.load import load_ratings
 
 # supported algorithms
 algorithms = {
-    'SVD': SVD(random_state=42)
-    , 'CoClustering': CoClustering(random_state=42)
+    "SVD": SVD
+    , "CoClustering": CoClustering
 }
+
+
+class Retrieval:
+    """Retrieval model class."""
+
+    def __init__(self, algorithm: str, params: dict = None):
+        self.algorithm = algorithm
+        self.params = params or {}
+
+        if self.algorithm in algorithms:
+            self.model = algorithms[self.algorithm](**self.params)
+        else:
+            raise NotImplementedError(
+                f"{algorithm} isn't supported. Select from {list(algorithms.keys())}."
+            )
+    
+    def fit(self, trainset: pd.DataFrame):
+        trainset = load_ratings(df=trainset)
+        trainset = trainset.build_full_trainset()
+        self.model.fit(trainset=trainset)
+
+    def predict(self, testset: pd.DataFrame):
+        testset = load_ratings(df=testset)
+        testset = [testset.df.loc[i].to_list() for i in range(len(testset.df))]
+        return self.model.test(testset=testset, verbose=False)
+    
 
 def candidate_generation(df: pd.DataFrame, config: dict[str, str | int]) -> pd.DataFrame:
     """Candidate generation for either positive or negative sampling."""
 
     results={}
     # read and build training set
-    train_set = Dataset.load_from_df(
-        df[["user_id", "item_id", "rating"]]
-        , reader=Reader(rating_scale=(1, 3))
-        )
+    train_set = load_ratings(df=df)
     train_set = train_set.build_full_trainset()
     test_set = train_set.build_anti_testset()
 
