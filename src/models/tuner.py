@@ -25,6 +25,7 @@ class BayesianSearch:
         self.fixed_params = self.param_grid["fixed"]
         self.float_params = set(self.param_grid["float_params"])
         self.results = dict()
+        self.models = dict()
 
     def fit(
             self
@@ -38,7 +39,7 @@ class BayesianSearch:
 
         if self.method == "ranker":
             # set algorithm instance
-            clf = Ranker(algorithm=self.algorithm, params=hyperparams).model
+            clf = Ranker(algorithm=self.algorithm, params=hyperparams)
             
             # fit the model with early stopping if needed
             clf.fit(
@@ -51,10 +52,11 @@ class BayesianSearch:
             # compute predictions and evaluate
             scorer = Evaluation(clf=clf)
             score = scorer.fit(
-                train=(df_train["X"], df_train["y"], df_train["group"]),
-                validation=(df_valid["X"], df_valid["y"], df_valid["group"]),
+                train=tuple(df_train.values()),
+                validation=tuple(df_valid.values())
                 )
             self.results[trial.number] = score
+            self.models[trial.number] = clf
             eval_metric = score.loc["validation", self.scoring_metric]
 
         elif self.method == "retrieval":
@@ -68,6 +70,7 @@ class BayesianSearch:
             scorer = Evaluation(clf=clf)
             score = scorer.fit(train=df_train["X"], validation=df_valid["X"])
             self.results[trial.number] = score
+            self.models[trial.number] = clf
             eval_metric = score.loc["validation", self.scoring_metric]
 
         return eval_metric

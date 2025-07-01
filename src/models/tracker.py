@@ -7,6 +7,9 @@ import mlflow
 import subprocess
 import webbrowser
 import optuna
+from surprise import AlgoBase
+from xgboost import XGBModel
+import pickle
 
 from src.models.tuner import BayesianSearch
 
@@ -27,6 +30,7 @@ def log_run(
             log_artifact(artifact=study.best_trial.value, artifact_name=tuner.scoring_metric)
             log_artifact(artifact=study.trials_dataframe(), artifact_name="bayes_search", artifact_path="stats")
             log_artifact(artifact=tuner.param_grid, artifact_name="param_grid")
+            log_artifact(artifact=tuner.models[study.best_trial.number].model, artifact_name="model_instance")
 
             # convert trials results dictionary to dataframe
             results = []
@@ -48,7 +52,7 @@ def launch_mlflow():
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
 
-def log_artifact(artifact: Union[pd.DataFrame, dict, float, int], artifact_name: str, artifact_path: str = "default"):
+def log_artifact(artifact: Union[pd.DataFrame, dict, float, int, AlgoBase], artifact_name: str, artifact_path: str = "default"):
     """Save object locally, log it as an artifact, and delete it."""
 
     if isinstance(artifact, pd.DataFrame):
@@ -64,6 +68,12 @@ def log_artifact(artifact: Union[pd.DataFrame, dict, float, int], artifact_name:
     
     if isinstance(artifact, (float, int)):
         mlflow.log_metric(key=artifact_name, value=artifact)
+
+    if isinstance(artifact, Union[AlgoBase, XGBModel]):
+        with open(f"{artifact_name}.pkl", "wb") as f:
+            pickle.dump(artifact, f)
+        mlflow.log_artifact(f"{artifact_name}.pkl", artifact_path=artifact_name)
+        os.remove(f"{artifact_name}.pkl")
 
 
 def get_or_create_run(run_name: str, experiment_name: str):
