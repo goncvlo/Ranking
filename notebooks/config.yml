@@ -47,7 +47,7 @@ optimization:
         objective: "rank:pairwise"
         eval_metric: "ndcg"
         random_state: 42
-        verbose: False
+        verbosity: 0
       tunable:
         learning_rate: [0.001, 0.5]
         gamma: [0, 10]
