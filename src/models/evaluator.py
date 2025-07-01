@@ -53,7 +53,7 @@ class Evaluation:
         elif isinstance(self.model, Ranker):
             selected_metrics = {metric: metrics["ranker"][metric]} if metric else metrics["ranker"]
 
-            for name, (X, y, group) in datasets.items():
+            for name, (group, X, y) in datasets.items():
                 y_pred = np.asarray(self.model.predict(X=X))
                 y_true = np.asarray(y)
 
