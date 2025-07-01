@@ -35,30 +35,7 @@ class Retrieval:
         testset = [testset.df.loc[i].to_list() for i in range(len(testset.df))]
         return self.model.test(testset=testset, verbose=False)
     
-
-def candidate_generation(df: pd.DataFrame, config: dict[str, str | int]) -> pd.DataFrame:
-    """Candidate generation for either positive or negative sampling."""
-
-    results={}
-    # read and build training set
-    train_set = load_ratings(df=df)
-    train_set = train_set.build_full_trainset()
-    test_set = train_set.build_anti_testset()
-
-    for sample_method in config.keys():
-        # select and fit model
-        clf = algorithms[config[sample_method]['method']]
-        clf.fit(train_set)
-
-        # get candidates - pool of not interacted items, and add it results dict
-        pred = clf.test(test_set)
-        recs = top_or_bottom_n(
-            pred, n=config[sample_method]['num'], get_top=sample_method=='positive'
-            )
-        results[sample_method] = recs
-
-    return results
-
+    
 def top_or_bottom_n(predictions, n: int=10, get_top: bool=True) -> pd.DataFrame:
     """Return either the top-N or bottom-N recommendation for each user
     from a set of predictions.
