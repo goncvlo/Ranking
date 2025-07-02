@@ -21,7 +21,7 @@ class CoVisit:
     def fit(self, ui_matrix: pd.DataFrame):
 
         self.matrices = dict()
-        self.candidates = dict()
+        self.candidates = []
 
         for method in self.methods:
             # compute co-visitation matrix
@@ -34,22 +34,20 @@ class CoVisit:
             self.matrices[method] = self.compute(ui_matrix=temp_matrix, method=method)
 
             # get candidates for each user
-            self.candidates[method] = self._get_candidates_all_users(
+            candidates = self.get_candidates_all_users(
                 ui_matrix=temp_matrix, cov_matrix=self.matrices[method]
                 )
+            
+            # convert to dataframe and save it
+            candidates = self.convert_df(candidates=candidates)
+            candidates["method"] = method
+            self.candidates.append(candidates)
         
-        # Convert candidates dict to DataFrame with method info
-        self.candidates = [
-             (method, user_id, item_id, score)
-            for method, method_dict in self.candidates.items()
-            for user_id, items in method_dict.items()
-            for item_id, score in items
-            ]
-        self.candidates = pd.DataFrame(self.candidates, columns=["method", "user_id", "item_id", "score"])
-        return self.candidates
+        return pd.concat(self.candidates, ignore_index=True)
 
     def compute(self, ui_matrix: pd.DataFrame, method: str):
         """Compute the different co-visitation matrices."""
+
         matrix = defaultdict(lambda: defaultdict(float))
 
         if method=="weighted":
@@ -97,7 +95,7 @@ class CoVisit:
         # top-k scored candidates
         return sorted(candidate_scores.items(), key=lambda x: x[1], reverse=True)[:self.top_k]
     
-    def _get_candidates_all_users(self, ui_matrix: pd.DataFrame, cov_matrix: dict) -> dict:
+    def get_candidates_all_users(self, ui_matrix: pd.DataFrame, cov_matrix: dict) -> dict:
         """Get top-k candidates for all users using a co-visit matrix."""
 
         user_items_map = ui_matrix.groupby("user_id")["item_id"].apply(set).to_dict()
@@ -108,3 +106,16 @@ class CoVisit:
             user_candidates[user_id] = candidates
 
         return user_candidates
+    
+    def convert_df(self, candidates: dict):
+        """Convert candidates dict to DataFrame."""
+
+        candidates = [
+            (user_id, item_id, score)
+            for user_id, items in candidates.items()
+            for item_id, score in items
+            ]
+        candidates = pd.DataFrame(candidates, columns=["user_id", "item_id", "score"])
+
+        return candidates
+    
