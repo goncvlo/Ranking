@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from surprise import SVD, CoClustering
 from collections import defaultdict
@@ -35,30 +36,43 @@ class Retrieval:
         testset = [testset.df.loc[i].to_list() for i in range(len(testset.df))]
         return self.model.test(testset=testset, verbose=False)
     
-    
-def top_or_bottom_n(predictions, n: int=10, get_top: bool=True) -> pd.DataFrame:
-    """Return either the top-N or bottom-N recommendation for each user
-    from a set of predictions.
+    def top_n(self, user_ids: list, n: int = 10):
 
-    Args:
-        predictions (list): List of predictions, as returned by the method of algorithm.
-        n (int): Number of recommendations to output for each user. Default is 10.
-        get_top (bool): If True, returns the top-N recs. Else, returns the bottom-N.
-    """
-    
-    # first, map the predictions to each user.
-    recs = defaultdict(list)
-    for uid, iid, true_r, est, _ in predictions:
-        recs[uid].append((iid, est))
-    
-    # sort the predictions for each user and retrieve either the top-n or bottom-n.
-    for uid, user_ratings in recs.items():
-        # sort by estimated rating
-        user_ratings.sort(key=lambda x: x[1], reverse=True if get_top else False)
-        recs[uid] = user_ratings[:n]
-    
-    # convert to DataFrame
-    recs = [(uid, iid, est) for uid, items in recs.items() for iid, est in items]
-    recs = pd.DataFrame(recs, columns=['user_id', 'item_id', 'rating'])
+        if not isinstance(self.model, SVD):
+            raise NotImplementedError(f"{self.algorithm} isn't supported.")
 
-    return recs
+        # convert raw user ids to inner ids
+        user_ids = list(set(user_ids)) # remove duplicates
+        user_inner_ids = [self.model.trainset.to_inner_uid(u) for u in user_ids]
+
+        # get user latent factors for all users [shape is (num_users, n_factors)]
+        # compute scores for all items for all users [shape is (num_users, num_items)]
+        U = self.model.pu[user_inner_ids]
+        S = np.dot(U, self.model.qi.T)
+        user_biases = self.model.bu[user_inner_ids].reshape(-1, 1)
+        item_biases = self.model.bi.reshape(1, -1)
+        global_bias = self.model.trainset.global_mean
+        S = S + user_biases + item_biases + global_bias
+
+        # get top-n items based on its score
+        top_n_items = []
+        for idx, (user_raw_id, user_inner_id) in enumerate(zip(user_ids, user_inner_ids)):
+
+            # items user already rated
+            rated_items = set(iid for (iid, _) in self.model.trainset.ur[user_inner_id])
+
+            # mask scores of rated items by setting very low score
+            scores = S[idx]
+            scores[list(rated_items)] = -np.inf
+            
+            # get top-n item indices and sort it
+            top_n_iids = np.argpartition(-scores, n)[:n]
+            top_n_iids = top_n_iids[np.argsort(-scores[top_n_iids])]
+
+            #  convert inner ids to raw ids and get scores
+            for item_inner_id in top_n_iids:
+                item_raw_id = self.model.trainset.to_raw_iid(item_inner_id)
+                score = scores[item_inner_id]
+                top_n_items.append((user_raw_id, item_raw_id, score))
+
+        return pd.DataFrame(top_n_items, columns=["user_id", "item_id", "score"])
