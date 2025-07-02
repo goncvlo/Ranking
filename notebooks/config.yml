@@ -1,7 +1,7 @@
 general:
   seed: 42
 data_loader:
-  path: "../src/data/datasets"
+  path: "../data/ml-100k"
   sub_paths: ["data", "user", "item"]
 optimization:
   leave_last_k: 5
