@@ -119,3 +119,26 @@ class CoVisit:
 
         return candidates
     
+
+def popular_items(ui_matrix: pd.DataFrame, top_k: int = 10):
+
+    # views/interactions per item
+    item_popularity = ui_matrix.groupby("item_id").size().sort_values(ascending=False)
+    popular_items = item_popularity.index.tolist()
+
+    # user interacted items
+    rated_items = ui_matrix.groupby("user_id")["item_id"].apply(set).to_dict()
+
+    # for each user select popular items excluding his/her rated items
+    user_recommendations = {}
+    for user, seen_items in rated_items.items():
+        recommended = [item for item in popular_items if item not in seen_items][:top_k]
+        user_recommendations[user] = recommended
+    
+    user_recommendations = pd.DataFrame([
+        {'user_id': user, 'item_id': item}
+        for user, items in user_recommendations.items()
+        for item in items
+        ])
+    
+    return user_recommendations
