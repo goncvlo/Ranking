@@ -28,6 +28,7 @@ optimization:
         reg_pu: [0.01, 0.5]
         reg_qi: [0.01, 0.5]
       float_params: ["lr_bu", "lr_bi", "lr_pu", "lr_qi", "reg_bu", "reg_bi", "reg_pu", "reg_qi"]
+      categ_params: []
 
     CoClustering:
       fixed:
@@ -38,6 +39,19 @@ optimization:
         n_cltr_i: [3, 9]
         n_epochs: [15, 25]
       float_params: []
+      categ_params: []
+
+    KNNWithMeans:
+      fixed:
+        verbose: False
+        user_based: True
+      tunable:
+        name: ["msd", "cosine", "pearson"]
+        min_support: [3, 10]
+        k: [10, 100]
+        min_k: [1, 20]
+      float_params: []
+      categ_params: ["name"]
 
   ranker:
     scoring_metric: "ndcg"
@@ -55,6 +69,7 @@ optimization:
         subsample: [0.5, 1]
         n_estimators: [50, 400]
       float_params: ["learning_rate", "gamma", "subsample"]
+      categ_params: []
 
     LGBMRanker:
       fixed:
@@ -70,3 +85,4 @@ optimization:
         n_estimators: [50, 400]
         min_child_samples: [5, 50]
       float_params: ["learning_rate", "subsample"]
+      categ_params: []

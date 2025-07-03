@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from surprise import SVD, CoClustering
+from surprise import SVD, CoClustering, KNNWithMeans
 from collections import defaultdict
 
 from src.data.load import load_ratings
@@ -9,6 +9,7 @@ from src.data.load import load_ratings
 algorithms = {
     "SVD": SVD
     , "CoClustering": CoClustering
+    , "KNNWithMeans": KNNWithMeans
 }
 
 

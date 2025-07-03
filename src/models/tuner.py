@@ -22,8 +22,6 @@ class BayesianSearch:
         self.algorithm = algorithm
         self.scoring_metric = config[self.method]["scoring_metric"]
         self.param_grid = config[self.method][self.algorithm]
-        self.fixed_params = self.param_grid["fixed"]
-        self.float_params = set(self.param_grid["float_params"])
         self.results = dict()
         self.models = dict()
 
@@ -77,13 +75,28 @@ class BayesianSearch:
     
     def _suggest_hyperparams(self, trial: optuna.trial.Trial) -> dict:
         """Suggest hyperparameters based on the config, using trial."""
-        tunable_params = {
-            hp: (
-                trial.suggest_float(name=hp, low=bounds[0], high=bounds[1])
-                if hp in self.float_params
-                else trial.suggest_int(name=hp, low=bounds[0], high=bounds[1])
-            )
-            for hp, bounds in self.param_grid['tunable'].items()
-        }
-        return {**tunable_params, **self.fixed_params}
+        tunable_params = {}
+
+        for hp, bounds in self.param_grid['tunable'].items():
+            if hp in self.param_grid["float_params"]:
+                tunable_params[hp] = trial.suggest_float(hp, bounds[0], bounds[1])
+            elif hp in self.param_grid["categ_params"]:
+                tunable_params[hp] = trial.suggest_categorical(hp, bounds)
+            else:
+                tunable_params[hp] = trial.suggest_int(hp, bounds[0], bounds[1])
+
+        hyperparams = {**tunable_params, **self.param_grid["fixed"]}
+
+        if self.algorithm=="KNNWithMeans":
+            # merge hyperparams in sim_options param
+            sim_options = {
+                "name": hyperparams["name"]
+                , "user_based": hyperparams["user_based"]
+                , "min_support": hyperparams["min_support"]
+            }
+
+            del hyperparams["name"], hyperparams["user_based"], hyperparams["min_support"]
+            hyperparams["sim_options"] = sim_options
+        
+        return hyperparams
     
