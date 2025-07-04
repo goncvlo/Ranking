@@ -77,26 +77,58 @@ class Evaluation:
             return results_df
 
 
-def recs_score(recommendations: pd.DataFrame, catalog: pd.DataFrame) -> dict[str, float]:
-    """
-    Calculate recommendation quality metrics: coverage and novelty.
+def recall(y_pred: pd.DataFrame, y_true: pd.DataFrame, hit_rate: bool = False):
 
-    Parameters:
-    - recommendations: top-k recommended items.
-    - catalog: available ratings set.
-    """
+    y_pred = y_pred[["user_id", "item_id"]].drop_duplicates().copy()
+    y_true = y_true[["user_id", "item_id"]].drop_duplicates().copy()
+    y_true["true_flag"] = 1
+    if y_true.groupby("user_id")["item_id"].nunique().unique().shape[0]==1:
+        div = y_true.groupby(["user_id"])["item_id"].nunique().unique()[0]
+    else:
+        raise NotImplementedError("Users with diff num. of y_true items.")
+
+    # merge actuals with candidates
+    y_pred = (
+        y_pred
+        .merge(y_true, how="left", on=["user_id", "item_id"])
+        .fillna({"true_flag": 0})
+    )
+
+    # compute source table for recall
+    df = (
+        y_pred
+        .groupby(by=["user_id"])["true_flag"].sum()
+        .reset_index()
+        .groupby(by=["true_flag"]).size()
+        .reset_index().rename(columns={0: "size"})
+        )
+    df["size_pct"] = (df["size"]/df["size"].sum()*100).round(1)
+
+    recall_score = 0
+    if hit_rate:
+        recall_score = df[df["true_flag"]>0]["size_pct"].sum()/100    
+    else:
+        for v in range(0, div+1):
+            if not df[df["true_flag"]==v]["size"].empty:
+                recall_score += (v/div)* df[df["true_flag"]==v]["size"].values[0]
+        recall_score = recall_score / df["size"].sum()
+
+    return recall_score
+
+
+def coverage(y_pred: pd.DataFrame, catalog: pd.DataFrame):
     # coverage: proportion of unique items recommended
-    recommended_items = recommendations["item_id"].unique()
+    recommended_items = y_pred["item_id"].unique()
     total_items = catalog["item_id"].unique()
-    coverage_score = len(recommended_items) / len(total_items)
     
+    return len(recommended_items) / len(total_items)
+
+
+def novelty(y_pred: pd.DataFrame, catalog: pd.DataFrame):
     # novelty: items that are less popular (inverted normalized popularity)
     item_popularity = catalog['item_id'].value_counts(normalize=True)
-    novelty_score =  recommendations['item_id'].map(
+    novelty_score =  y_pred['item_id'].map(
         lambda x: 1 - item_popularity.get(x, 0)
         ).mean()
 
-    return {
-        "coverage": coverage_score,
-        "novelty": novelty_score
-    }
+    return novelty_score
