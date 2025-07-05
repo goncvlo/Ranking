@@ -39,7 +39,7 @@ class Retrieval:
         testset = [testset.df.loc[i].to_list() for i in range(len(testset.df))]
         return self.model.test(testset=testset, verbose=False)
     
-    def top_n(self, user_ids: list, n: int = 10):
+    def top_n(self, user_ids: list, n: int = 10, top: bool = True):
 
         user_ids = list(set(user_ids))
         top_n_items = []
@@ -68,8 +68,8 @@ class Retrieval:
                 scores[list(rated_items)] = -np.inf
                 
                 # get top-n item indices and sort it
-                top_item_inner_ids = np.argpartition(-scores, n)[:n]
-                top_item_inner_ids = top_item_inner_ids[np.argsort(-scores[top_item_inner_ids])]
+                top_item_inner_ids = np.argpartition(((-1)**(1-top))*scores, n)[:n]
+                top_item_inner_ids = top_item_inner_ids[np.argsort(((-1)**(1-top))*scores[top_item_inner_ids])]
 
                 #  convert inner ids to raw ids and get scores
                 for item_inner_id in top_item_inner_ids:
@@ -103,7 +103,10 @@ class Retrieval:
                 ]
 
                 # select top-n
-                top_n = heapq.nlargest(n, predictions, key=lambda x: x[1])
+                if top:
+                    top_n = heapq.nlargest(n, predictions, key=lambda x: x[1])
+                else:
+                    top_n = heapq.nsmallest(n, predictions, key=lambda x: x[1])
                 for item_inner_id, score in top_n:
                     item_raw_id = self.model.trainset.to_raw_iid(item_inner_id)
                     top_n_items.append((user_raw_id, item_raw_id, score))
@@ -124,8 +127,11 @@ class Retrieval:
                     item_raw_id = all_raw_items[item_inner_id]
                     est = self.model.predict(user_raw_id, item_raw_id).est
                     predictions.append((item_raw_id, est))
-
-                top_n = heapq.nlargest(n, predictions, key=lambda x: x[1])
+                
+                if top:
+                    top_n = heapq.nlargest(n, predictions, key=lambda x: x[1])
+                else:
+                    top_n = heapq.nsmallest(n, predictions, key=lambda x: x[1])
                 for item_raw_id, score in top_n:
                     top_n_items.append((user_raw_id, item_raw_id, score))
     
