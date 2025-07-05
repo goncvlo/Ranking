@@ -22,8 +22,9 @@ class BayesianSearch:
         self.algorithm = algorithm
         self.scoring_metric = config[self.method]["scoring_metric"]
         self.param_grid = config[self.method][self.algorithm]
-        self.results = dict()
-        self.models = dict()
+        self.artifacts = dict()
+        for artifact_type in ["models", "evaluation_metrics"]:
+            self.artifacts[artifact_type] = dict()
 
     def fit(
             self
@@ -53,8 +54,8 @@ class BayesianSearch:
                 train=tuple(df_train.values()),
                 validation=tuple(df_valid.values())
                 )
-            self.results[trial.number] = score
-            self.models[trial.number] = clf
+            self.artifacts["evaluation_metrics"][trial.number] = score
+            self.artifacts["models"][trial.number] = clf
             eval_metric = score.loc["validation", self.scoring_metric]
 
         elif self.method == "retrieval":
@@ -67,9 +68,12 @@ class BayesianSearch:
             # compute predictions and evaluate
             scorer = Evaluation(clf=clf)
             score = scorer.fit(train=df_train["X"], validation=df_valid["X"])
-            self.results[trial.number] = score
-            self.models[trial.number] = clf
+            self.artifacts["evaluation_metrics"][trial.number] = score
+            self.artifacts["models"][trial.number] = clf
             eval_metric = score.loc["validation", self.scoring_metric]
+
+        # log input samples
+        self.input_sample = df_train["X"].head()
 
         return eval_metric
     
