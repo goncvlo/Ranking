@@ -44,7 +44,7 @@ def hottest_items(ui_matrix: pd.DataFrame, df_items: pd.DataFrame, top_k: int = 
     )
 
     # top-k recommendations per user
-    recs = {}
+    user_recs = {}
     for _, row in user_genre.iterrows():
         user = row["user_id"]
         genre = row["genre"]
@@ -55,15 +55,15 @@ def hottest_items(ui_matrix: pd.DataFrame, df_items: pd.DataFrame, top_k: int = 
             item for item in items_by_genre[genre]
             if item not in u_rated_items # for baseline model change to "in"
             ][:top_k]
-        recs[user] = top_items
+        user_recs[user] = top_items
         
-    recs = pd.DataFrame([
+    user_recs = pd.DataFrame([
         {"user_id": user, "item_id": item}
-        for user, items in recs.items()
+        for user, items in user_recs.items()
         for item in items
     ])
 
-    return recs
+    return user_recs
 
 
 def popular_items(ui_matrix: pd.DataFrame, top_k: int = 10):
@@ -76,15 +76,15 @@ def popular_items(ui_matrix: pd.DataFrame, top_k: int = 10):
     rated_items = ui_matrix.groupby("user_id")["item_id"].apply(set).to_dict()
 
     # for each user select popular items excluding his/her rated items
-    user_recommendations = {}
+    user_recs = {}
     for user, seen_items in rated_items.items():
         recommended = [item for item in popular_items if item not in seen_items][:top_k]
-        user_recommendations[user] = recommended
+        user_recs[user] = recommended
     
-    user_recommendations = pd.DataFrame([
+    user_recs = pd.DataFrame([
         {'user_id': user, 'item_id': item}
-        for user, items in user_recommendations.items()
+        for user, items in user_recs.items()
         for item in items
         ])
     
-    return user_recommendations
+    return user_recs
