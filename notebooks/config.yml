@@ -82,7 +82,7 @@ optimization:
     LGBMRanker:
       fixed:
         objective: "lambdarank"
-        eval_metric: "ndcg"
+        # eval_metric: "ndcg"
         boosting_type: "gbdt"
         random_state: 42
       tunable:
