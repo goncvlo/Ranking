@@ -25,7 +25,9 @@ def log_run(
         today_date = datetime.now().strftime("%d%b%Y").upper()
         with mlflow.start_run(run_name=today_date, nested=True):
 
-            log_artifact(artifact=study.best_trial.params, artifact_name="params")
+            # adding fixed params
+            hyper_params = study.best_trial.params | tuner.param_grid["fixed"]
+            log_artifact(artifact=hyper_params, artifact_name="params")
             log_artifact(artifact=study.best_trial.duration.total_seconds(), artifact_name="duration_secs")
             log_artifact(artifact=study.best_trial.number, artifact_name="trial_index")
             log_artifact(artifact=study.best_trial.value, artifact_name=tuner.scoring_metric)
