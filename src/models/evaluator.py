@@ -6,6 +6,7 @@ from typing import Union
 
 from src.models.ranker import Ranker
 from src.models.retrieval import Retrieval
+from src.models.utils import _check_user_count
 
 # supported metrics
 metrics = {
@@ -75,45 +76,51 @@ class Evaluation:
             return results_df.iloc[0, 0]
         else:
             return results_df
+    
+
+def recall_at_k(y_pred, y_true, k=10):
+    pred = y_pred.groupby("user_id")["item_id"].apply(lambda x: set(x[:k]))
+    true = y_true.groupby("user_id")["item_id"].apply(set)
+
+    users = pred.index.intersection(true.index)
+    _check_user_count(users)
+
+    recalls = [
+        len(pred[u] & true[u]) / len(true[u]) if len(true[u]) > 0 else 0
+        for u in users
+    ]
+
+    return sum(recalls) / len(recalls)
 
 
-def recall(y_pred: pd.DataFrame, y_true: pd.DataFrame, hit_rate: bool = False):
+def precision_at_k(y_pred, y_true, k=10):
+    pred = y_pred.groupby("user_id")["item_id"].apply(lambda x: set(x[:k]))
+    true = y_true.groupby("user_id")["item_id"].apply(set)
 
-    y_pred = y_pred[["user_id", "item_id"]].drop_duplicates().copy()
-    y_true = y_true[["user_id", "item_id"]].drop_duplicates().copy()
-    y_true["true_flag"] = 1
-    if y_true.groupby("user_id")["item_id"].nunique().unique().shape[0]==1:
-        div = y_true.groupby(["user_id"])["item_id"].nunique().unique()[0]
-    else:
-        raise NotImplementedError("Users with diff num. of y_true items.")
+    users = pred.index.intersection(true.index)
+    _check_user_count(users)
 
-    # merge actuals with candidates
-    y_pred = (
-        y_pred
-        .merge(y_true, how="left", on=["user_id", "item_id"])
-        .fillna({"true_flag": 0})
-    )
+    precisions = [
+        len(pred[u] & true[u]) / len(pred[u]) if len(pred[u]) > 0 else 0
+        for u in users
+    ]
 
-    # compute source table for recall
-    df = (
-        y_pred
-        .groupby(by=["user_id"])["true_flag"].sum()
-        .reset_index()
-        .groupby(by=["true_flag"]).size()
-        .reset_index().rename(columns={0: "size"})
-        )
-    df["size_pct"] = (df["size"]/df["size"].sum()*100).round(1)
+    return sum(precisions) / len(precisions)
 
-    recall_score = 0
-    if hit_rate:
-        recall_score = df[df["true_flag"]>0]["size_pct"].sum()/100    
-    else:
-        for v in range(0, div+1):
-            if not df[df["true_flag"]==v]["size"].empty:
-                recall_score += (v/div)* df[df["true_flag"]==v]["size"].values[0]
-        recall_score = recall_score / df["size"].sum()
 
-    return recall_score
+def hit_rate_at_k(y_pred, y_true, k=10):
+    pred = y_pred.groupby("user_id")["item_id"].apply(lambda x: set(x[:k]))
+    true = y_true.groupby("user_id")["item_id"].apply(set)
+
+    users = pred.index.intersection(true.index)
+    _check_user_count(users)
+
+    hits = [
+        1 if len(pred[u] & true[u]) > 0 else 0
+        for u in users
+    ]
+
+    return sum(hits) / len(hits)
 
 
 def coverage(y_pred: pd.DataFrame, catalog: pd.DataFrame):
