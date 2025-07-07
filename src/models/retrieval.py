@@ -45,6 +45,7 @@ class Retrieval:
         top_n_items = []
         # convert raw user ids to inner ids
         user_inner_ids = [self.model.trainset.to_inner_uid(u) for u in user_ids]
+        signal = -1 if top else 1
 
         if isinstance(self.model, SVD):
 
@@ -65,11 +66,11 @@ class Retrieval:
 
                 # mask scores of rated items by setting very low score
                 scores = S[idx]
-                scores[list(rated_items)] = -np.inf
+                scores[list(rated_items)] = signal*np.inf
                 
                 # get top-n item indices and sort it
-                top_item_inner_ids = np.argpartition(((-1)**(1-top))*scores, n)[:n]
-                top_item_inner_ids = top_item_inner_ids[np.argsort(((-1)**(1-top))*scores[top_item_inner_ids])]
+                top_item_inner_ids = np.argpartition(signal*scores, n)[:n]
+                top_item_inner_ids = top_item_inner_ids[np.argsort(signal*scores[top_item_inner_ids])]
 
                 #  convert inner ids to raw ids and get scores
                 for item_inner_id in top_item_inner_ids:
