@@ -84,8 +84,8 @@ class Evaluation:
 
         for metric_name, func in selected_metrics.items():
             if metric_name in ["recall", "precision", "hit_rate"]:
-                row_eval[metric_name] = round(func(y_pred=y_candidates, y_true=y_relevant, k=k), 5)
-                row_train[metric_name] = -1
+                row_eval[f"{metric_name}@{k}"] = round(func(y_pred=y_candidates, y_true=y_relevant, k=k), 5)
+                row_train[f"{metric_name}@{k}"] = -1
 
         return pd.DataFrame(results).set_index("dataset")
 

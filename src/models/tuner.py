@@ -31,6 +31,7 @@ class BayesianSearch:
             , df_train: dict[str, pd.DataFrame | list]
             , df_valid: dict[str, pd.DataFrame | list]
             , trial: optuna.trial.Trial
+            , k: int = 10
             ) -> float:
         
         # set suggested hyper-parameters
@@ -67,10 +68,10 @@ class BayesianSearch:
 
             # compute predictions and evaluate
             scorer = Evaluation(clf=clf)
-            score = scorer.fit(train=df_train["X"], validation=df_valid["X"])
+            score = scorer.fit(train=df_train["X"], validation=df_valid["X"], k=k)
             self.artifacts["evaluation_metrics"][trial.number] = score
             self.artifacts["models"][trial.number] = clf
-            eval_metric = score.loc["validation", self.scoring_metric]
+            eval_metric = score.loc["validation", f"{self.scoring_metric}@{k}"]
 
         # log input samples
         self.input_sample = df_train["X"].head()
