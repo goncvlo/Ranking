@@ -4,7 +4,6 @@ from surprise import SVD, CoClustering, KNNWithMeans
 from collections import defaultdict
 import heapq
 
-
 from src.data.load import load_ratings
 
 # supported algorithms
@@ -151,3 +150,4 @@ class Retrieval:
                 )
             
         return top_n_items
+    
