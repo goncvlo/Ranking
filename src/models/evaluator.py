@@ -77,7 +77,7 @@ class Evaluation:
         if train_set is None:
             raise ValueError("`train` set is required for recall/precision/hit_rate evaluation.")
 
-        y_candidates = self.model.top_n(user_ids=train_set["user_id"].unique(), n=k, top=True)
+        y_candidates = self.model.top_n(user_ids=train_set["user_id"].unique(), k=k, top=True)
         row_train = results[0]
         row_eval = results[1] if "validation" in datasets else results[-1]
         y_relevant = datasets["validation"] if "validation" in datasets else datasets["test"]
