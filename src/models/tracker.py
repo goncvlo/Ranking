@@ -105,17 +105,17 @@ def get_or_create_run(run_name: str, experiment_name: str):
 
 def log_model(artifact: Union[Retrieval, Ranker], artifact_name: str, input_sample: pd.DataFrame):
 
-    output_example = artifact.predict(input_sample)
-    input_example = input_sample.astype({col: 'float' for col in input_sample.select_dtypes(include='int').columns})
-    signature = mlflow.models.signature.infer_signature(input_example, output_example)
-
     model = artifact.model
     if isinstance(model, AlgoBase):
         with open(f"{artifact_name}.pkl", "wb") as f:
             pickle.dump(model, f)
         mlflow.log_artifact(f"{artifact_name}.pkl", artifact_path=artifact_name)
         os.remove(f"{artifact_name}.pkl")
-    
+
+    output_example = artifact.predict(input_sample)
+    input_example = input_sample.astype({col: 'float' for col in input_sample.select_dtypes(include='int').columns})
+    signature = mlflow.models.signature.infer_signature(input_example, output_example)
+        
     if isinstance(model, XGBModel):
         mlflow.xgboost.log_model(
             model,
