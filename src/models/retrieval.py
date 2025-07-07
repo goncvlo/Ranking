@@ -138,8 +138,15 @@ class Retrieval:
         else:
             raise NotImplementedError(f"{self.algorithm} isn't supported.")
 
-        top_n_items = (
-            pd.DataFrame(top_n_items, columns=["user_id", "item_id", "score"])
-            .sort_values(by=["user_id", "score"], ascending=[True, False])
-            )
+        if top:
+            top_n_items = (
+                pd.DataFrame(top_n_items, columns=["user_id", "item_id", "score"])
+                .sort_values(by=["user_id", "score"], ascending=[True, False])
+                )
+        else:
+            top_n_items = (
+                pd.DataFrame(top_n_items, columns=["user_id", "item_id", "score"])
+                .sort_values(by=["user_id", "score"], ascending=[True, True])
+                )
+            
         return top_n_items
