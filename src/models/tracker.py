@@ -13,6 +13,8 @@ from lightgbm import LGBMModel
 import pickle
 
 from src.models.tuner import BayesianSearch
+from src.models.ranker import Ranker
+from src.models.retrieval import Retrieval
 
 
 def log_run(
@@ -33,7 +35,7 @@ def log_run(
             log_artifact(artifact=study.best_trial.value, artifact_name=tuner.scoring_metric)
             log_artifact(artifact=study.trials_dataframe(), artifact_name="bayes_search", artifact_path="stats")
             log_artifact(artifact=tuner.param_grid, artifact_name="param_grid")
-            log_model(artifact=tuner.artifacts["models"][study.best_trial.number].model, artifact_name="model_instance", input_sample=tuner.input_sample)
+            log_model(artifact=tuner.artifacts["models"][study.best_trial.number], artifact_name="model_instance", input_sample=tuner.input_sample)
 
             # convert trials results dictionary to dataframe
             results = []
@@ -101,31 +103,31 @@ def get_or_create_run(run_name: str, experiment_name: str):
         return mlflow.start_run(run_name=run_name)
     
 
-def log_model(artifact: Union[AlgoBase, XGBModel, LGBMModel], artifact_name: str, input_sample: pd.DataFrame):
+def log_model(artifact: Union[Retrieval, Ranker], artifact_name: str, input_sample: pd.DataFrame):
 
     output_example = artifact.predict(input_sample)
     input_example = input_sample.astype({col: 'float' for col in input_sample.select_dtypes(include='int').columns})
     signature = mlflow.models.signature.infer_signature(input_example, output_example)
 
-
-    if isinstance(artifact, AlgoBase):
+    model = artifact.model
+    if isinstance(model, AlgoBase):
         with open(f"{artifact_name}.pkl", "wb") as f:
-            pickle.dump(artifact, f)
+            pickle.dump(model, f)
         mlflow.log_artifact(f"{artifact_name}.pkl", artifact_path=artifact_name)
         os.remove(f"{artifact_name}.pkl")
     
-    if isinstance(artifact, XGBModel):
+    if isinstance(model, XGBModel):
         mlflow.xgboost.log_model(
-            artifact,
+            model,
             name=artifact_name,
             input_example=input_example,
             signature=signature,
             model_format="json"
         )
 
-    if isinstance(artifact, LGBMModel):
+    if isinstance(model, LGBMModel):
         mlflow.lightgbm.log_model(
-            artifact,
+            model,
             name=artifact_name,
             input_example=input_example,
             signature=signature
