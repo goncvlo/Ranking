@@ -22,26 +22,31 @@ def log_run(
         study: optuna.study.Study,
         tuner: BayesianSearch
         ):
+    
+    # objects to be logged
+    params = study.best_trial.params | tuner.param_grid["fixed"]
+    metrics = {
+        "duration_secs": study.best_trial.duration.total_seconds(),
+        "trial_index": study.best_trial.number,
+        tuner.scoring_metric: study.best_trial.value
+        }
+    model = tuner.artifacts["models"][study.best_trial.number]
 
     with get_or_create_run(run_name=tuner.algorithm, experiment_name=experiment_name) as parent:
         today_date = datetime.now().strftime("%d%b%Y").upper()
         with mlflow.start_run(run_name=today_date, nested=True):
 
-            # adding fixed params
-            hyper_params = study.best_trial.params | tuner.param_grid["fixed"]
-            log_artifact(artifact=hyper_params, artifact_name="params")
-            log_artifact(artifact=study.best_trial.duration.total_seconds(), artifact_name="duration_secs")
-            log_artifact(artifact=study.best_trial.number, artifact_name="trial_index")
-            log_artifact(artifact=study.best_trial.value, artifact_name=tuner.scoring_metric)
-            log_artifact(artifact=study.trials_dataframe(), artifact_name="bayes_search", artifact_path="stats")
+            log_artifact(artifact=params, artifact_name="params")
+            log_artifact(artifact=metrics, artifact_name="metrics")
             log_artifact(artifact=tuner.param_grid, artifact_name="param_grid")
-            log_model(artifact=tuner.artifacts["models"][study.best_trial.number], artifact_name="model_instance", input_sample=tuner.input_sample)
+            log_artifact(artifact=study.trials_dataframe(), artifact_name="bayes_search", artifact_path="stats")
+            log_model(artifact=model, artifact_name="model_instance", input_sample=tuner.input_sample)
 
             # convert trials results dictionary to dataframe
             results = []
             for split_id, split_data in tuner.artifacts["evaluation_metrics"].items():
                 for dataset, metrics in split_data.items():
-                    row = {'split_id': split_id, 'metric': dataset}
+                    row = {"trial_index": split_id, "metric": dataset}
                     row.update(metrics)
                     results.append(row)
             results = pd.DataFrame(results)
@@ -68,11 +73,10 @@ def log_artifact(artifact: Union[pd.DataFrame, dict, float, int], artifact_name:
     if isinstance(artifact, dict):
         if artifact_name=="params":
             mlflow.log_params(params=artifact)
+        elif artifact_name=="metrics":
+            mlflow.log_metrics(metrics=artifact)
         else:
             mlflow.log_dict(dictionary=artifact, artifact_file=f"{artifact_name}.yaml")
-    
-    if isinstance(artifact, (float, int)):
-        mlflow.log_metric(key=artifact_name, value=artifact)
 
 
 def get_or_create_run(run_name: str, experiment_name: str):
@@ -103,14 +107,20 @@ def get_or_create_run(run_name: str, experiment_name: str):
         return mlflow.start_run(run_name=run_name)
     
 
-def log_model(artifact: Union[Retrieval, Ranker], artifact_name: str, input_sample: pd.DataFrame):
+def log_model(
+        artifact: Union[Retrieval, Ranker],
+        artifact_name: str,
+        input_sample: pd.DataFrame
+        ):
 
     model = artifact.model
+
     if isinstance(model, AlgoBase):
         with open(f"{artifact_name}.pkl", "wb") as f:
             pickle.dump(model, f)
         mlflow.log_artifact(f"{artifact_name}.pkl", artifact_path=artifact_name)
         os.remove(f"{artifact_name}.pkl")
+
     else:
         output_example = artifact.predict(input_sample)
         input_example = input_sample.astype({col: 'float' for col in input_sample.select_dtypes(include='int').columns})
