@@ -111,27 +111,27 @@ def log_model(artifact: Union[Retrieval, Ranker], artifact_name: str, input_samp
             pickle.dump(model, f)
         mlflow.log_artifact(f"{artifact_name}.pkl", artifact_path=artifact_name)
         os.remove(f"{artifact_name}.pkl")
-
-    output_example = artifact.predict(input_sample)
-    input_example = input_sample.astype({col: 'float' for col in input_sample.select_dtypes(include='int').columns})
-    signature = mlflow.models.signature.infer_signature(input_example, output_example)
-        
-    if isinstance(model, XGBModel):
-        mlflow.xgboost.log_model(
-            model,
-            name=artifact_name,
-            input_example=input_example,
-            signature=signature,
-            model_format="json"
-        )
-
-    if isinstance(model, LGBMModel):
-        mlflow.lightgbm.log_model(
-            model,
-            name=artifact_name,
-            input_example=input_example,
-            signature=signature
+    else:
+        output_example = artifact.predict(input_sample)
+        input_example = input_sample.astype({col: 'float' for col in input_sample.select_dtypes(include='int').columns})
+        signature = mlflow.models.signature.infer_signature(input_example, output_example)
+            
+        if isinstance(model, XGBModel):
+            mlflow.xgboost.log_model(
+                model,
+                name=artifact_name,
+                input_example=input_example,
+                signature=signature,
+                model_format="json"
             )
+
+        if isinstance(model, LGBMModel):
+            mlflow.lightgbm.log_model(
+                model,
+                name=artifact_name,
+                input_example=input_example,
+                signature=signature
+                )
 
 
 def load_model(path: str, algorithm: str) -> Union[AlgoBase, XGBModel, LGBMModel]:
