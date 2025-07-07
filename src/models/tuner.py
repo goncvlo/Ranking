@@ -51,8 +51,8 @@ class BayesianSearch:
             # compute predictions and evaluate
             scorer = Evaluation(clf=clf)
             score = scorer.fit(
-                train=tuple(df_train.values()),
-                validation=tuple(df_valid.values())
+                train=(df_train["group"], df_train["X"], df_train["y"]),
+                validation=(df_valid["group"], df_valid["X"], df_valid["y"])
                 )
             self.artifacts["evaluation_metrics"][trial.number] = score
             self.artifacts["models"][trial.number] = clf
