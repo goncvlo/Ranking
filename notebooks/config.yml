@@ -16,7 +16,8 @@ optimization:
   n_trials: 10
 
   retrieval:
-    scoring_metric: "rmse"
+    metric: "recall"
+    direction: "maximize"
     SVD:
       fixed:
         random_state: 42
@@ -62,7 +63,8 @@ optimization:
       categ_params: ["name"]
 
   ranker:
-    scoring_metric: "ndcg"
+    metric: "ndcg"
+    direction: "maximize"
     XGBRanker:
       fixed:
         booster: "gbtree"
@@ -81,7 +83,7 @@ optimization:
 
     LGBMRanker:
       fixed:
-        objective: "lambdarank"
+        objective: "rank_xendcg" # "lambdarank" for listwise
         # eval_metric: "ndcg"
         boosting_type: "gbdt"
         random_state: 42
