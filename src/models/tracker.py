@@ -160,4 +160,56 @@ def load_model(path: str, algorithm: str) -> Union[AlgoBase, XGBModel, LGBMModel
     else:
         with open(path, "rb") as f:
             return pickle.load(f)
-        
+
+
+def load_params(experiment_name: str, parent_run_name: str) -> dict:
+    """
+    Get hyperparameters (logged params) from the first child run
+    under a given parent run name in the specified MLflow experiment.
+
+    :param experiment_name: Name of the MLflow experiment
+    :param parent_run_name: The mlflow.runName tag of the parent run
+    :return: Dictionary of parameters from the first child run
+    """
+    client = mlflow.tracking.MlflowClient()
+
+    # get experiment ID
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        raise ValueError(f"Experiment '{experiment_name}' not found.")
+    experiment_id = experiment.experiment_id
+
+    # locate the parent run by tag name
+    parent_runs = client.search_runs(
+        experiment_ids=[experiment_id],
+        filter_string=f"tags.mlflow.runName = '{parent_run_name}'",
+        max_results=1
+    )
+    if not parent_runs:
+        raise ValueError(f"Parent run '{parent_run_name}' not found.")
+    parent_run_id = parent_runs[0].info.run_id
+
+    # get first child run under parent
+    child_runs = client.search_runs(
+        experiment_ids=[experiment_id],
+        filter_string=f"tags.mlflow.parentRunId = '{parent_run_id}'",
+        order_by=["start_time DESC"],
+        max_results=1
+    )
+    if not child_runs:
+        raise ValueError("No child runs found under the specified parent run.")
+
+    raw_params = child_runs[0].data.params
+    return {k: cast_param_value(v) for k, v in raw_params.items()}
+
+
+def cast_param_value(value: str):
+    """Attempt to cast param string to int, float, or bool."""
+    for cast in (int, float):
+        try:
+            return cast(value)
+        except ValueError:
+            continue
+    if value.lower() in {"true", "false"}:
+        return value.lower() == "true"
+    return value  # fallback to string
