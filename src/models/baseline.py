@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def hottest_items(ui_matrix: pd.DataFrame, df_items: pd.DataFrame, top_k: int = 10):
+def hottest_items(ui_matrix: pd.DataFrame, df_items: pd.DataFrame, k: int = 10):
     """Hottest unrated items of favorite user genre."""
 
     # extract genre columns
@@ -54,7 +54,7 @@ def hottest_items(ui_matrix: pd.DataFrame, df_items: pd.DataFrame, top_k: int = 
         top_items = [
             item for item in items_by_genre[genre]
             if item not in u_rated_items # for baseline model change to "in"
-            ][:top_k]
+            ][:k]
         user_recs[user] = top_items
         
     user_recs = pd.DataFrame([
@@ -66,7 +66,7 @@ def hottest_items(ui_matrix: pd.DataFrame, df_items: pd.DataFrame, top_k: int = 
     return user_recs
 
 
-def popular_items(ui_matrix: pd.DataFrame, top_k: int = 10):
+def popular_items(ui_matrix: pd.DataFrame, k: int = 10):
 
     # views/interactions per item
     item_popularity = ui_matrix.groupby("item_id").size().sort_values(ascending=False)
@@ -78,7 +78,7 @@ def popular_items(ui_matrix: pd.DataFrame, top_k: int = 10):
     # for each user select popular items excluding his/her rated items
     user_recs = {}
     for user, seen_items in rated_items.items():
-        recommended = [item for item in popular_items if item not in seen_items][:top_k]
+        recommended = [item for item in popular_items if item not in seen_items][:k]
         user_recs[user] = recommended
     
     user_recs = pd.DataFrame([
