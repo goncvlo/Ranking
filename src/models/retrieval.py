@@ -38,7 +38,7 @@ class Retrieval:
         testset = [testset.df.loc[i].to_list() for i in range(len(testset.df))]
         return self.model.test(testset=testset, verbose=False)
     
-    def top_n(self, user_ids: list, n: int = 10, top: bool = True):
+    def top_n(self, user_ids: list, k: int = 10, top: bool = True):
 
         user_ids = list(set(user_ids))
         top_n_items = []
@@ -68,7 +68,7 @@ class Retrieval:
                 scores[list(rated_items)] = signal*np.inf
                 
                 # get top-n item indices and sort it
-                top_item_inner_ids = np.argpartition(signal*scores, n)[:n]
+                top_item_inner_ids = np.argpartition(signal*scores, k)[:k]
                 top_item_inner_ids = top_item_inner_ids[np.argsort(signal*scores[top_item_inner_ids])]
 
                 #  convert inner ids to raw ids and get scores
@@ -104,9 +104,9 @@ class Retrieval:
 
                 # select top-n
                 if top:
-                    top_n = heapq.nlargest(n, predictions, key=lambda x: x[1])
+                    top_n = heapq.nlargest(k, predictions, key=lambda x: x[1])
                 else:
-                    top_n = heapq.nsmallest(n, predictions, key=lambda x: x[1])
+                    top_n = heapq.nsmallest(k, predictions, key=lambda x: x[1])
                 for item_inner_id, score in top_n:
                     item_raw_id = self.model.trainset.to_raw_iid(item_inner_id)
                     top_n_items.append((user_raw_id, item_raw_id, score))
@@ -129,9 +129,9 @@ class Retrieval:
                     predictions.append((item_raw_id, est))
                 
                 if top:
-                    top_n = heapq.nlargest(n, predictions, key=lambda x: x[1])
+                    top_n = heapq.nlargest(k, predictions, key=lambda x: x[1])
                 else:
-                    top_n = heapq.nsmallest(n, predictions, key=lambda x: x[1])
+                    top_n = heapq.nsmallest(k, predictions, key=lambda x: x[1])
                 for item_raw_id, score in top_n:
                     top_n_items.append((user_raw_id, item_raw_id, score))
     
