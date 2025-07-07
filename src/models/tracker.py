@@ -30,27 +30,34 @@ def log_run(
         "trial_index": study.best_trial.number,
         tuner.scoring_metric: study.best_trial.value
         }
-    model = tuner.artifacts["models"][study.best_trial.number]
-
+    
     with get_or_create_run(run_name=tuner.algorithm, experiment_name=experiment_name) as parent:
         today_date = datetime.now().strftime("%d%b%Y").upper()
         with mlflow.start_run(run_name=today_date, nested=True):
 
-            log_artifact(artifact=params, artifact_name="params")
-            log_artifact(artifact=metrics, artifact_name="metrics")
-            log_artifact(artifact=tuner.param_grid, artifact_name="param_grid")
-            log_artifact(artifact=study.trials_dataframe(), artifact_name="bayes_search", artifact_path="stats")
-            log_model(artifact=model, artifact_name="model_instance", input_sample=tuner.input_sample)
+            log_artifact(params, "params")
+            log_artifact(metrics, "metrics")
+            log_artifact(tuner.param_grid, "param_grid")
+            log_artifact(study.trials_dataframe(), "bayes_search", "stats")
+            log_artifact(tuner.artifacts["test_evaluation"], "evaluation_metrics_test", "stats")
 
             # convert trials results dictionary to dataframe
             results = []
             for split_id, split_data in tuner.artifacts["evaluation_metrics"].items():
-                for dataset, metrics in split_data.items():
+                for dataset, metric in split_data.items():
                     row = {"trial_index": split_id, "metric": dataset}
-                    row.update(metrics)
+                    row.update(metric)
                     results.append(row)
             results = pd.DataFrame(results)
-            log_artifact(artifact=results, artifact_name="evaluation_metrics", artifact_path="stats")
+            log_artifact(results, "evaluation_metrics_valid", "stats")
+
+            # log best validation model and test model
+            for i_model, name in zip([-1, metrics["trial_index"]], ["valid", "test"]):
+                log_model(
+                    artifact=tuner.artifacts["models"][i_model],
+                    artifact_name=f"model_{name}",
+                    input_sample=tuner.input_sample
+                    )
 
 
 def launch_mlflow():
