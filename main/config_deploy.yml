@@ -12,7 +12,6 @@ data_preparation:
     negative: [1]
     positive: [2, 3]
 train:
-  path: main/artifacts/
   negative_sample:
     popular: 15
     covisit: 10

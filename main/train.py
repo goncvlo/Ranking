@@ -35,7 +35,7 @@ def train(config: dict = config):
         clf = Retrieval(algorithm=algorithm, params=params)
         clf.fit(trainset=dfs["data"])
         
-        joblib.dump(clf, f'{config["train"]["path"]}{algorithm}.joblib')
+        joblib.dump(clf, f'main/artifacts/{algorithm}.joblib')
     
     # negative sampling for ranking model
     neg_sample_1 = popular_items(
@@ -61,7 +61,7 @@ def train(config: dict = config):
         clf = Ranker(algorithm=algorithm, params=params)
         clf.fit(X=df["X"], y=df["y"], group=df["group"])
         
-        joblib.dump(clf, f'{config["train"]["path"]}{algorithm}.joblib')
+        joblib.dump(clf, f'main/artifacts/{algorithm}.joblib')
 
 
 if __name__ == "__main__":
