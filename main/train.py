@@ -44,10 +44,10 @@ def train(config: dict = config):
     neg_sample = pd.concat([neg_sample_1, neg_sample_2], ignore_index=True)
 
     neg_sample = neg_sample[["user_id", "item_id"]]
-    rating_key = list(config["data_preparation"]["rating_conversion"].keys())[0]
-    neg_sample["rating"] = rating_key
+    ratings_v = config["data_preparation"]["rating_conversion"].keys()
+    neg_sample["rating"] = list(ratings_v)[0]
 
-    del neg_sample_1, neg_sample_2, rating_key
+    del neg_sample_1, neg_sample_2, ratings_v
 
     # feature engineering for ranking model
     user_item_features = feature_engineering(dataframes=dfs)
