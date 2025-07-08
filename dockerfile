@@ -29,5 +29,8 @@ WORKDIR /main
 # copy rest of the application code into container
 COPY . .
 
+# train the model DURING build, so it's included in the image
+RUN poetry run python -m main.train
+
 # run the app using Gunicorn with Uvicorn workers
 CMD ["gunicorn", "main.fastapi:api", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8080"]
