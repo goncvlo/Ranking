@@ -140,13 +140,13 @@ class Retrieval:
 
         if top:
             top_n_items = (
-                pd.DataFrame(top_n_items, columns=["user_id", "item_id", "score"])
-                .sort_values(by=["user_id", "score"], ascending=[True, False])
+                pd.DataFrame(top_n_items, columns=["user_id", "item_id", "rating"])
+                .sort_values(by=["user_id", "rating"], ascending=[True, False])
                 )
         else:
             top_n_items = (
-                pd.DataFrame(top_n_items, columns=["user_id", "item_id", "score"])
-                .sort_values(by=["user_id", "score"], ascending=[True, True])
+                pd.DataFrame(top_n_items, columns=["user_id", "item_id", "rating"])
+                .sort_values(by=["user_id", "rating"], ascending=[True, True])
                 )
             
         return top_n_items
