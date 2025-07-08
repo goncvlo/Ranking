@@ -6,62 +6,59 @@ import joblib
 from src.data.load import load_data
 from src.data.prepare import prepare_data
 from src.features.features import feature_engineering
+from src.features.utils import build_rank_input
+from src.models.ranker import Ranker
+from src.models.retrieval import Retrieval
+from src.models.co_visit import CoVisit
+from src.models.baseline import popular_items
+from src.models.utils import set_global_seed
 
 # read config
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config_deploy.yml"
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
+
+# ensure reproducibility
+set_global_seed(seed=config["general"]["seed"])
 
 
 def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     """Inference pipeline."""
-    # load and prepare data
-    dataframes = load_data(config=config["data_loader"])
-    dataframes = prepare_data(dataframes=dataframes)
 
-    if user_id not in dataframes['user']['user_id'].unique():
+    # load and prepare data
+    dfs = load_data(config=config["data_loader"])
+    dfs = prepare_data(dataframes=dfs, config=config["data_preparation"])
+
+    if user_id not in dfs["user"]["user_id"].unique():
         return pd.DataFrame(columns=["user_id", "item_id", "movie_title"])
 
-    # get candidates through anti-train set
-    candidates = pd.MultiIndex.from_product(
-        [
-            dataframes["data"]["user_id"].unique(),
-            dataframes["data"]["item_id"].unique(),
-        ],
-        names=["user_id", "item_id"],
-    ).to_frame(index=False)
+    # load models and get candidates
+    candidates = []
+    for algorithm in config["train"]["retrieval"].keys():
+        clf = joblib.load(f'main/artifacts/{algorithm}.joblib')
+        candidates.append(clf.top_n([user_id]))
 
-    candidates = candidates.merge(
-        dataframes["data"][["user_id", "item_id"]].copy(),
-        on=["user_id", "item_id"],
-        how="left",
-        indicator=True,
-    )
+    candidates = pd.concat(candidates, ignore_index=True).rename(columns={"score": "rating"})
+    candidates["rating"] = candidates["rating"].round()
 
-    candidates = candidates[
-        (candidates["_merge"] == "left_only")
-        & (candidates["user_id"] == user_id)
-    ][["user_id", "item_id"]]
-
-    # create features
-    user_item_features = feature_engineering(dataframes=dataframes)
-    candidates = candidates.merge(
-        user_item_features["user"], how="left", on="user_id"
-    ).merge(user_item_features["item"], how="left", on="item_id")
+    # feature engineering
+    user_item_features = feature_engineering(dataframes=dfs)
+    df = build_rank_input(ratings=candidates, features=user_item_features)
+    
     del user_item_features
 
     # load model and get top-3 recommendations
-    clf = joblib.load(config["model"]["path"])
-    feature_cols = [
-        col for col in candidates.columns if col not in ["user_id", "item_id"]
-    ]
-    candidates["score"] = clf.predict(candidates[feature_cols])
+    for algorithm in config["train"]["ranker"].keys():
+        clf = joblib.load(f'main/artifacts/{algorithm}.joblib')
+        candidates["score"] = clf.predict(X=df["X"])
 
     candidates = (
-        candidates.sort_values(["user_id", "score"], ascending=[True, False])
+        candidates
+        .drop_duplicates(subset=["user_id", "item_id"])
+        .sort_values(["user_id", "score"], ascending=[True, False])
         .groupby("user_id").head(3)[["user_id", "item_id"]]
         .merge(
-            dataframes["item"][["item_id", "movie_title"]],
+            dfs["item"][["item_id", "movie_title"]],
             how="left", on="item_id"
             )
     )
