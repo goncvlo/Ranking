@@ -1,0 +1,62 @@
+general:
+  seed: 42
+data_loader:
+  path: "../data/ml-100k"
+  sub_paths: ["data", "user", "item"]
+data_preparation:
+  rating_conversion:
+    1: [1, 2, 3]
+    2: [4]
+    3: [5]
+  rating_flag:
+    negative: [1]
+    positive: [2, 3]
+train:
+  path: main/artifacts/
+  negative_sample:
+    popular: 15
+    covisit: 10
+  retrieval:
+    SVD:
+      random_state: 42
+      biased: True
+      init_mean: 0
+      init_std_dev: 0.1
+      verbose: False
+      n_factors: 127
+      n_epochs: 17
+      lr_bu: 0.003755536444677597
+      lr_bi: 0.40791525279896224
+      lr_pu: 0.35372181457996094
+      lr_qi: 0.3647745768524527
+      reg_bu: 0.3879224698761134
+      reg_bi: 0.04628187934970428
+      reg_pu: 0.1856482069866936
+      reg_qi: 0.06677583916731356
+    CoClustering:
+      random_state: 42
+      verbose: False
+      n_epochs: 16
+      n_cltr_i: 4
+      n_cltr_u: 7
+    KNNWithMeans:
+      verbose: False
+      sim_options:
+        user_based: True
+        name: cosine
+        min_support: 8
+      k: 11
+      min_k: 20
+  ranker:
+    XGBRanker:
+      booster: "gbtree"
+      objective: "rank:pairwise"
+      eval_metric: "ndcg"
+      random_state: 42
+      verbosity: 0
+      learning_rate: 0.07884126564776513
+      gamma: 0.5808361216819946
+      max_depth: 14
+      sub_sample: 0.8005575058716043
+      n_estimators: 298
+      
