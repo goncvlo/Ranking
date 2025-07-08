@@ -7,14 +7,10 @@ from src.data.load import load_data
 from src.data.prepare import prepare_data
 from src.features.features import feature_engineering
 from src.features.utils import build_rank_input
-from src.models.ranker import Ranker
-from src.models.retrieval import Retrieval
-from src.models.co_visit import CoVisit
-from src.models.baseline import popular_items
 from src.models.utils import set_global_seed
 
 # read config
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config_deploy.yml"
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
@@ -38,13 +34,12 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
         clf = joblib.load(f'main/artifacts/{algorithm}.joblib')
         candidates.append(clf.top_n([user_id]))
 
-    candidates = pd.concat(candidates, ignore_index=True).rename(columns={"score": "rating"})
+    candidates = pd.concat(candidates, ignore_index=True)
     candidates["rating"] = candidates["rating"].round()
 
     # feature engineering
     user_item_features = feature_engineering(dataframes=dfs)
     df = build_rank_input(ratings=candidates, features=user_item_features)
-    
     del user_item_features
 
     # load model and get top-3 recommendations
