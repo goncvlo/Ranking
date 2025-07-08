@@ -34,7 +34,7 @@ Inspired by [modern industrial recommender systems](https://static.googleusercon
 
 To evaluate the 1st phase, a baseline is set to compare the candidates from each heuristic/model (e.g. hottest items, collaborative filtering, ...). The baseline is based on item popularity - number of times an item was rated. Here, the goal is to evaluate if all the relevant items were found and if the candidates are actually relevant.
 
-   - For each user, it is retrieved the top-10 most popular items which wasn't rated by the user.
+   - For each user, it is retrieved the top-10 most popular items which weren't rated by the user.
    - Evaluate recall, precision and hit rate on validation (VS) and test (TS) sets.
 
 The table bellow summarises the performance metrics for the different methods.
@@ -42,9 +42,9 @@ The table bellow summarises the performance metrics for the different methods.
 | Algorithm        | Recall@10 (%) VS | Precision@10 (%) VS |  HitRate@10 (%) VS | Recall@10 (%) TS |  Precision@10 (%) TS | HitRate@10 (%) TS |
 |------------------|----------|----------|----------|----------|----------|----------|
 | Baseline | 8.20 | 4.10 | 32.13 | 7.57 | 3.78 | 30.43 |
-| KNNWithMeans |   |   |   |   |   |   |
-| SVD |   |   |   |   |   |   |
-| CoClustering |   |   |   |   |   |   |
+| KNNWithMeans | 1.35 | 0.67 | 6.46 | 1.44 | 0.72 | 6.78 |
+| SVD | 0.44 | 0.22 | 2.22 | 0.27 | 0.13 | 1.37 |
+| CoClustering | 0.36 | 0.18 | 1.59 | 0.25  | 0.12 | 1.27 |
 | Hottest Items | 1.39 | 0.69 | 6.25 | 1.35 | 0.67 | 5.93 |
 | CoVisited Weighted | 9.33 | 4.66 | 34.04 | 9.28 | 4.64 | 33.82 |
 | CoVisited Directional | 12.53 | 6.26 | 43.37 | 10.71 | 5.35 | 38.70 |
