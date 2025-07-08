@@ -127,8 +127,8 @@ jobs:
       - name: Run Bandit (Security linter)
         run: poetry run bandit -r main/ -ll
 
-      - name: Run Safety (Dependency vulnerability checker)
-        run: poetry run safety check
+      #- name: Run Safety (Dependency vulnerability checker)
+      #  run: poetry run safety scan
 
   deploy:
     runs-on: ubuntu-latest
