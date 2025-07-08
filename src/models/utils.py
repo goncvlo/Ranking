@@ -1,4 +1,8 @@
+import numpy as np
+import random
 import pandas as pd
+import warnings
+
 
 def leave_last_k(df: pd.DataFrame, config: dict):
     """
@@ -17,3 +21,17 @@ def leave_last_k(df: pd.DataFrame, config: dict):
     train_df = df_sorted[df_sorted['rank'] >= config['leave_last_k']].drop(columns='rank').reset_index(drop=True)
 
     return train_df, test_df
+
+
+def set_global_seed(seed: int = 42):
+    #os.environ["PYTHONHASHSEED"] = str(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+
+
+def _check_user_count(users, expected=943):
+    if len(users) != expected:
+        warnings.warn(
+            f"Number of users is {len(users)}, expected {expected}.",
+            UserWarning
+        )

@@ -16,13 +16,20 @@ api.add_middleware(
 
 @api.get("/recommend")
 def recommend(user_id: int):
-    """Top-3 recommendations for a single user_id."""
-    results = inference(user_id=user_id)
+    try:
+        results = inference(user_id=user_id)
 
-    if results.empty:
-        return {"message": f"No recommendations found for user {user_id}"}
+        if results is None:
+            return {"message": "Inference returned None"}
 
-    return results.to_dict(orient="records")
+        if results.empty:
+            return {"message": f"No recommendations found for user {user_id}"}
+
+        return results.to_dict(orient="records")
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return {"error": str(e)}
 
 
 @api.get("/")

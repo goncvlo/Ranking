@@ -30,13 +30,36 @@ Inspired by [modern industrial recommender systems](https://static.googleusercon
 
 #### :chart_with_upwards_trend: Baseline model
 
-   - For each user, the system retrieved the top-10 most popular items within their favorite genre (based on global popularity).
-   - Since users may not have seen all of these items, it was selected only users who had interacted with at least 5 of these top-10 items. The 5 items were again chosen by their popularity.
-   - Using the ground truth and baseline recommendations, the evaluation metrics were computed.
-   - Then, the trained ranker model was used to predict the ordering of items and compared its performance against the baseline.
+**1. Candidate Generation**
 
-*Note:*
-This evaluation focuses only on how well the model ranks the items relative to each other (measured by ranking metrics like NDCG). It does not capture other aspects like diversity (novelty) or coverage (how repetitive or varied the recommendations are).
+To evaluate the 1st phase, a baseline is set to compare the candidates from each heuristic/model (e.g. hottest items, collaborative filtering, ...). The baseline is based on item popularity - number of times an item was rated. Here, the goal is to evaluate if all the relevant items were found and if the candidates are actually relevant.
+
+   - For each user, it is retrieved the top-10 most popular items which weren't rated by the user.
+   - Evaluate recall, precision and hit rate on validation (VS) and test (TS) sets.
+
+The table bellow summarises the performance metrics for the different methods.
+
+| Algorithm        | Recall@10 (%) VS | Precision@10 (%) VS |  HitRate@10 (%) VS | Recall@10 (%) TS |  Precision@10 (%) TS | HitRate@10 (%) TS |
+|------------------|----------|----------|----------|----------|----------|----------|
+| Baseline | 8.20 | 4.10 | 32.13 | 7.57 | 3.78 | 30.43 |
+| KNNWithMeans | 1.35 | 0.67 | 6.46 | 1.44 | 0.72 | 6.78 |
+| SVD | 0.44 | 0.22 | 2.22 | 0.27 | 0.13 | 1.37 |
+| CoClustering | 0.36 | 0.18 | 1.59 | 0.25  | 0.12 | 1.27 |
+| Hottest Items | 1.39 | 0.69 | 6.25 | 1.35 | 0.67 | 5.93 |
+| CoVisited Weighted | 9.33 | 4.66 | 34.04 | 9.28 | 4.64 | 33.82 |
+| CoVisited Directional | 12.53 | 6.26 | 43.37 | 10.71 | 5.35 | 38.70 |
+
+Having now different methods to pick candidates from, a pool of candidates must be created for the ranking phase. For instance, if 10 candidates are picked from 5 different methods, it is obtained a total of 50 candidates for each user - which represents 3% of the total num. of items. In this case, the baseline is the top-50 most popular items which weren't rated by the user.
+
+| Algorithm        | Recall@50 (%) VS | Precision@50 (%) VS | HitRate@50 (%) VS | Recall@50 (%) TS | Precision@50 (%) TS | HitRate@50 (%) TS |
+|------------------|----------|----------|----------|----------|----------|----------|
+| Baseline | 22.43 | 2.24 | 63.73 | 21.93 | 2.19 | 60.76 |
+| Pool #1 |   |   |   |   |   |   |
+| Pool #2 |   |   |   |   |   |   |
+
+**2. Ranking**
+
+This evaluation focuses only on how well the model ranks the items relative to each other. Similarly to 1st phase, the baseline choosen is popularity based - i.e., within the candidate set, rank by item popularity.
 
 | Algorithm        | NDCG@5 |
 |------------------|----------|
