@@ -5,50 +5,63 @@ import joblib
 
 from src.data.load import load_data
 from src.data.prepare import prepare_data
+from src.models.retrieval import Retrieval
+from src.models.baseline import popular_items
+from src.models.co_visit import CoVisit
 from src.features.features import feature_engineering
-from src.models.retrieval import candidate_generation
 from src.features.utils import build_rank_input
 from src.models.ranker import Ranker
+from src.models.utils import set_global_seed
+
 
 # read config
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config_deploy.yml"
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
+
+# ensure reproducibility
+set_global_seed(seed=config["general"]["seed"])
 
 
 def train(config: dict = config):
     """Train pipeline."""
 
     # load and prepare data
-    dataframes = load_data(config=config["data_loader"])
-    dataframes = prepare_data(dataframes=dataframes)
+    dfs = load_data(config=config['data_loader'])
+    dfs = prepare_data(dataframes=dfs, config=config["data_preparation"])
 
-    # generate candidates and create user-item features
-    train_df = candidate_generation(
-        dataframes["data"], config["model"]["retrieval"]
-        )
-    train_df = pd.concat([
-        dataframes["data"].iloc[:, :3],
-        train_df["positive"],
-        train_df["negative"]
-        ], ignore_index=True)
+    # train and log retrieval models
+    for algorithm, params in config["train"]["retrieval"].items():
+        clf = Retrieval(algorithm=algorithm, params=params)
+        clf.fit(trainset=dfs["data"])
+        
+        joblib.dump(clf, f'{config["train"]["path"]}{algorithm}.joblib')
+    
+    # negative sampling for ranking model
+    neg_sample_1 = popular_items(
+        ui_matrix=dfs["data"],
+        k=config["train"]["negative_sample"]["popular"])
+    neg_sample_2 = CoVisit(methods=["negative"]).fit(ui_matrix=dfs["data"])
+    neg_sample = pd.concat([neg_sample_1, neg_sample_2], ignore_index=True)
 
-    user_item_features = feature_engineering(dataframes=dataframes)
-    ranking_input = build_rank_input(train_df, user_item_features)
+    neg_sample = neg_sample[["user_id", "item_id"]]
+    neg_sample["rating"] = list(config["data_preparation"]["rating_conversion"].keys())[0]
 
-    del train_df, user_item_features, dataframes
+    del neg_sample_1, neg_sample_2
 
-    # build and save model
-    model = Ranker(
-        algorithm=config['model']['ranking']['algorithm'],
-        params=config["model"]["ranking"]["hyper_params"]
-        )
-    model.fit(
-        ranking_input["X"],
-        ranking_input["y"],
-        group=ranking_input["group"]
-    )
-    joblib.dump(model, config["model"]["path"])
+    # feature engineering for ranking model
+    user_item_features = feature_engineering(dataframes=dfs)
+    df = pd.concat([dfs["data"], neg_sample], ignore_index=True)
+    df = build_rank_input(ratings=df.iloc[:,:3], features=user_item_features)
+
+    del neg_sample, user_item_features
+
+    # train and log ranker models
+    for algorithm, params in config["train"]["ranker"].items():
+        clf = Ranker(algorithm=algorithm, params=params)
+        clf.fit(X=df["X"], y=df["y"], group=df["group"])
+        
+        joblib.dump(clf, f'{config["train"]["path"]}{algorithm}.joblib')
 
 
 if __name__ == "__main__":
