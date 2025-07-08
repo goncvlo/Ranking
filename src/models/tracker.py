@@ -11,6 +11,7 @@ from surprise import AlgoBase
 from xgboost import XGBModel
 from lightgbm import LGBMModel
 import pickle
+import ast
 
 from src.models.tuner import BayesianSearch
 from src.models.ranker import Ranker
@@ -219,4 +220,6 @@ def cast_param_value(value: str):
             continue
     if value.lower() in {"true", "false"}:
         return value.lower() == "true"
+    elif value[0]=="{" and value[-1]=="}":
+        return ast.literal_eval(value)
     return value  # fallback to string
