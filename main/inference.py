@@ -31,7 +31,7 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     # load models and get candidates
     candidates = []
     for algorithm in config["train"]["retrieval"].keys():
-        clf = joblib.load(f'main/artifacts/{algorithm}.joblib')
+        clf = joblib.load(f'../main/artifacts/{algorithm}.joblib')
         candidates.append(clf.top_n([user_id]))
 
     candidates = pd.concat(candidates, ignore_index=True)
@@ -44,7 +44,7 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
 
     # load model and get top-3 recommendations
     for algorithm in config["train"]["ranker"].keys():
-        clf = joblib.load(f'main/artifacts/{algorithm}.joblib')
+        clf = joblib.load(f'../main/artifacts/{algorithm}.joblib')
         candidates["score"] = clf.predict(X=df["X"])
 
     candidates = (
