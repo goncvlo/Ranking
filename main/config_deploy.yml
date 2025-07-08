@@ -1,7 +1,7 @@
 general:
   seed: 42
 data_loader:
-  path: "../data/ml-100k"
+  path: "data/ml-100k"
   sub_paths: ["data", "user", "item"]
 data_preparation:
   rating_conversion:
