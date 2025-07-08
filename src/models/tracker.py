@@ -157,17 +157,6 @@ def get_run(experiment_name: str, run_name: str):
     else:
         # create new run in the selected experiment
         return mlflow.start_run(run_name=run_name)
-    
-
-def load_model(path: str, algorithm: str) -> Union[AlgoBase, XGBModel, LGBMModel]:
-
-    if algorithm=="XGBRanker":
-        return mlflow.xgboost.load_model(path)
-    elif algorithm=="LGBMRanker":
-        return mlflow.lightgbm.load_model(path)
-    else:
-        with open(path, "rb") as f:
-            return pickle.load(f)
 
 
 def load_params(experiment_name: str, parent_run_name: str) -> dict:
@@ -223,3 +212,55 @@ def cast_param_value(value: str):
     elif value[0]=="{" and value[-1]=="}":
         return ast.literal_eval(value)
     return value  # fallback to string
+
+
+def load_model(experiment_name: str, parent_run_name: str):
+    """
+    Load a model artifact from the first child run under a parent run in a given MLflow experiment.
+
+    :param experiment_name: Name of the MLflow experiment
+    :param parent_run_name: The mlflow.runName tag of the parent run
+    :return: Loaded model (XGBRanker, LGBMRanker, or pickled model)
+    """
+    client = mlflow.tracking.MlflowClient()
+
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        raise ValueError(f"Experiment '{experiment_name}' not found.")
+    experiment_id = experiment.experiment_id
+
+    parent_runs = client.search_runs(
+        experiment_ids=[experiment_id],
+        filter_string=f"tags.mlflow.runName = '{parent_run_name}'",
+        max_results=1
+    )
+    if not parent_runs:
+        raise ValueError(f"Parent run '{parent_run_name}' not found.")
+    parent_run_id = parent_runs[0].info.run_id
+
+    child_runs = client.search_runs(
+        experiment_ids=[experiment_id],
+        filter_string=f"tags.mlflow.parentRunId = '{parent_run_id}'",
+        order_by=["start_time DESC"],
+        max_results=1
+    )
+    if not child_runs:
+        raise ValueError("No child runs found under the specified parent run.")
+
+    child_run = child_runs[0]
+    params = child_run.data.params
+    if params is None:
+        raise ValueError("No 'algorithm' param found in the child run.")
+
+    # assumes model artifact logged at "model"
+    model_uri = f"mlflow-artifacts:/{experiment_id}/{child_run.info.run_id}/artifacts/model"
+    if parent_run_name == "XGBRanker":
+        return mlflow.xgboost.load_model(model_uri)
+    elif parent_run_name == "LGBMRanker":
+        return mlflow.lightgbm.load_model(model_uri)
+    else:
+        # fallback: download and load pickle manually
+        model_uri = f"mlflow-artifacts:/{experiment_id}/{child_run.info.run_id}/artifacts/{parent_run_name}/{parent_run_name}.pkl"
+        local_path = mlflow.artifacts.download_artifacts(model_uri)
+        with open(local_path, "rb") as f:
+            return pickle.load(f)
