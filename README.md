@@ -20,8 +20,8 @@ https://github.com/user-attachments/assets/6a8eccad-a60a-41ef-ae79-1d8babc2f60c
 #### :test_tube: Work
 Inspired by [modern industrial recommender systems](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf), this recommeder has a multi-stage architecture - **Candidate Generation** and **Ranking**.
 
-- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. This step leverages negative sampling through collaborative filtering methods such as SVD and Co-Clustering to efficiently generate candidate sets.
-- In the 2nd stage, a predictive model ranks the candidate movies based on estimated relevance scores for each user. The ranking process is trained to optimize the Normalized Discounted Cumulative Gain (NDCG) metric, which emphasizes the placement of relevant items higher in the ranked list.
+- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. Collaborative filtering methods such as SVD or Co-Clustering, and heuristics such as co-visitation matrices or hottest items efficiently generate candidate sets.
+- In the 2nd stage, a predictive model ranks the candidate movies based on estimated relevance scores for each user. The ranking process is trained to optimize the Normalized Discounted Cumulative Gain (NDCG) metric, which emphasizes the placement of relevant items higher in the ranked list. Additionally, negative sampling was leveraged to understand possible irrelevant items.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/37317043-fefb-4ecb-b791-3ef1641eea15" />
