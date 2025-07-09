@@ -32,7 +32,7 @@ Inspired by [modern industrial recommender systems](https://static.googleusercon
 
 **1. Candidate Generation**
 
-To evaluate the 1st phase, a baseline is set to compare the candidates from each heuristic/model (e.g. hottest items, collaborative filtering, ...). The baseline is based on item popularity - number of times an item was rated. Here, the goal is to evaluate if all the relevant items were found and if the candidates are actually relevant.
+To evaluate the 1st phase, a baseline is set to compare the candidates from each heuristic/model (e.g. hottest items, collaborative filtering, ...). The goal is to evaluate if all the relevant items were found and if the candidates are actually relevant. The baseline candidates are most popular items.
 
    - For each user, it is retrieved the top-10 most popular items which weren't rated by the user.
    - Evaluate recall, precision and hit rate on validation (VS) and test (TS) sets.
@@ -59,12 +59,13 @@ Having now different methods to pick candidates from, a pool of candidates must 
 
 **2. Ranking**
 
-This evaluation focuses only on how well the model ranks the items relative to each other. Similarly to 1st phase, the baseline choosen is popularity based - i.e., within the candidate set, rank by item popularity.
+For this 2nd phase, the evaluation focuses only on how well the model ranks the items relative to each other. Similarly to 1st phase, the baseline choosen is popularity based - i.e., within the candidate set rank the items by item popularity.
 
-| Algorithm        | NDCG@5 |
-|------------------|----------|
-| Baseline | 0.917 |
-| **XGBRanker** :trophy: | 0.954 |
+| Algorithm        | NDCG@5 (%) VS | NDCG@5 (%) TS |
+|------------------|----------|----------|
+| Baseline | 85.88 | 86.61 |
+| **XGBRanker** :trophy: | 94.97 | 95.21 |
+| LGBMRanker | 94.74 | 95.19 |
 
 #### :rocket: Deployment
 
