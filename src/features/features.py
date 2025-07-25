@@ -56,10 +56,9 @@ def feature_engineering(dataframes: dict[str, pd.DataFrame]) -> pd.DataFrame:
         "rating": ["count", "nunique", "mean", "std"]
         })
     user_feats.columns = ["u_rating_count", "u_rating_nunique", "u_rating_mean", "u_rating_std"]
-    user_feats[["u_rating_std"]] = user_feats[["u_rating_std"]].fillna(0)
     user_feats = user_feats.reset_index()
 
-    user_df = user_df.merge(right=user_feats, on="user_id", how="left")
+    user_df = user_df.merge(right=user_feats, on="user_id", how="left").fillna(0)
     del user_feats
 
     # 3.2. at the item level
@@ -68,10 +67,9 @@ def feature_engineering(dataframes: dict[str, pd.DataFrame]) -> pd.DataFrame:
         "rating": ["count", "nunique", "mean", "std"]
         })
     item_feats.columns = ["i_rating_count", "i_rating_nunique", "i_rating_mean", "i_rating_std"]
-    item_feats[["i_rating_std"]] = item_feats[["i_rating_std"]].fillna(0)
     item_feats = item_feats.reset_index()
 
-    item_df = item_df.merge(right=item_feats, on="item_id", how="left")
+    item_df = item_df.merge(right=item_feats, on="item_id", how="left").fillna(0)
     del item_feats
 
     return {"user": user_df, "item": item_df }
