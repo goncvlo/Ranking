@@ -64,8 +64,8 @@ For this 2nd phase, the evaluation focuses only on how well the model ranks the 
 | Algorithm        | NDCG@5 (%) VS | NDCG@5 (%) TS |
 |------------------|----------|----------|
 | Baseline | 85.88 | 86.61 |
-| **XGBRanker** :trophy: | 94.97 | 95.21 |
-| LGBMRanker | 94.74 | 95.19 |
+| **XGBRanker** :trophy: | 94.95 | 95.18 |
+| LGBMRanker | 94.77 | 95.30 |
 
 #### :rocket: Deployment
 
