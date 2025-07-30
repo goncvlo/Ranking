@@ -2,6 +2,7 @@ import numpy as np
 import random
 import pandas as pd
 import warnings
+import torch
 
 
 def leave_last_k(df: pd.DataFrame, config: dict):
@@ -27,6 +28,7 @@ def set_global_seed(seed: int = 42):
     #os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
     random.seed(seed)
+    torch.manual_seed(seed)
 
 
 def _check_user_count(users, expected=943):
