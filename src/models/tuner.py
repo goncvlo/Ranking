@@ -7,15 +7,15 @@ from src.models.evaluator import Evaluation
 
 
 # supported methods
-methods = ["retrieval", "ranker"]
+METHODS = ["retrieval", "ranker"]
 
 
 class BayesianSearch:
     def __init__(self, config: dict, method: str, algorithm: str):
         # check and assign method
-        if method not in methods:
+        if method not in METHODS:
             raise NotImplementedError(
-                f"{method} isn't supported. Select from {methods}."
+                f"{method} isn't supported. Select from {METHODS}."
             )
         
         self.method = method        

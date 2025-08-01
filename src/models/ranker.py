@@ -2,7 +2,7 @@ from xgboost import XGBRanker
 from lightgbm import LGBMRanker
 
 # supported algorithms
-algorithms = {
+ALGORITHMS = {
     "XGBRanker": XGBRanker,
     "LGBMRanker": LGBMRanker
 }
@@ -14,11 +14,11 @@ class Ranker:
         self.algorithm = algorithm
         self.params = params or {}
 
-        if self.algorithm in algorithms:
-            self.model = algorithms[self.algorithm](**self.params)
+        if self.algorithm in ALGORITHMS:
+            self.model = ALGORITHMS[self.algorithm](**self.params)
         else:
             raise NotImplementedError(
-                f"{algorithm} isn't supported. Select from {list(algorithms.keys())}."
+                f"{algorithm} isn't supported. Select from {list(ALGORITHMS.keys())}."
             )
     
     def fit(self, X, y, group=None):

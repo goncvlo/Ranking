@@ -7,7 +7,7 @@ import heapq
 from src.data.load import load_ratings
 
 # supported algorithms
-algorithms = {
+ALGORITHMS = {
     "SVD": SVD
     , "CoClustering": CoClustering
     , "KNNWithMeans": KNNWithMeans
@@ -21,11 +21,11 @@ class Retrieval:
         self.algorithm = algorithm
         self.params = params or {}
 
-        if self.algorithm in algorithms:
-            self.model = algorithms[self.algorithm](**self.params)
+        if self.algorithm in ALGORITHMS:
+            self.model = ALGORITHMS[self.algorithm](**self.params)
         else:
             raise NotImplementedError(
-                f"{algorithm} isn't supported. Select from {list(algorithms.keys())}."
+                f"{algorithm} isn't supported. Select from {list(ALGORITHMS.keys())}."
             )
     
     def fit(self, trainset: pd.DataFrame):

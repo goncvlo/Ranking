@@ -2,17 +2,17 @@ from collections import defaultdict
 from itertools import combinations
 import pandas as pd
 
-
-methods_list = ["positive", "negative", "weighted", "directional"]
+# co visitation matrix methods
+METHODS_LIST = ["positive", "negative", "weighted", "directional"]
 
 
 class CoVisit:
     """Co-Visitation Matrices class."""
 
     def __init__(self, methods: list[str], k: int = 10):
-        if not set(methods).issubset(methods_list):
+        if not set(methods).issubset(METHODS_LIST):
             raise NotImplementedError(
-                f"{methods} isn't supported. Select from {methods_list}."
+                f"{methods} isn't supported. Select from {METHODS_LIST}."
             )
 
         self.methods = methods
