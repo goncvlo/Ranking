@@ -38,10 +38,8 @@ class BayesianSearch:
         hyperparams = self._suggest_hyperparams(trial)
 
         if self.method == "ranker":
-            # set algorithm instance
+            # set algorithm instance and fit training data
             clf = Ranker(algorithm=self.algorithm, params=hyperparams)
-            
-            # fit the model with early stopping if needed
             clf.fit(
                 df_train["X"], df_train["y"]
                 , group=df_train["group"]
@@ -55,23 +53,21 @@ class BayesianSearch:
                 train=(df_train["group"], df_train["X"], df_train["y"]),
                 validation=(df_valid["group"], df_valid["X"], df_valid["y"])
                 )
-            self.artifacts["metrics_valid"][trial.number] = score
-            self.artifacts["models"][trial.number] = clf
             eval_metric = score.loc["validation", self.metric]
 
         elif self.method == "retrieval":
-            # set algorithm instance
+            # set algorithm instance and fit training data
             clf = Retrieval(algorithm=self.algorithm, params=hyperparams)
-
-            # fit model
             clf.fit(trainset=df_train["X"])
 
             # compute predictions and evaluate
             scorer = Evaluation(clf=clf)
             score = scorer.fit(train=df_train["X"], validation=df_valid["X"], k=k)
-            self.artifacts["metrics_valid"][trial.number] = score
-            self.artifacts["models"][trial.number] = clf
             eval_metric = score.loc["validation", f"{self.metric}@{k}"]
+
+        # artifacts logging
+        self.artifacts["metrics_valid"][trial.number] = score
+        self.artifacts["models"][trial.number] = clf
 
         return eval_metric
     
