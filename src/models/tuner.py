@@ -1,5 +1,6 @@
 import pandas as pd
 import optuna
+from typing import Union
 
 from src.models.ranker import Ranker
 from src.models.retrieval import Retrieval
@@ -28,10 +29,12 @@ class BayesianSearch:
 
     def fit(
             self
-            , df_train: dict[str, pd.DataFrame | list]
-            , df_valid: dict[str, pd.DataFrame | list]
+            , df_train: dict[str, Union[pd.DataFrame, list]]
+            , df_valid: dict[str, Union[pd.DataFrame, list]]
             , trial: optuna.trial.Trial
             , k: int = 10
+            , features: dict[str, pd.DataFrame] = None
+            , epochs: int = None
             ) -> float:
         
         # set suggested hyper-parameters
@@ -58,11 +61,11 @@ class BayesianSearch:
         elif self.method == "retrieval":
             # set algorithm instance and fit training data
             clf = Retrieval(algorithm=self.algorithm, params=hyperparams)
-            clf.fit(trainset=df_train["X"])
-
+            clf.fit(trainset=df_train["X"], features=features, epochs=epochs)
+            
             # compute predictions and evaluate
             scorer = Evaluation(clf=clf)
-            score = scorer.fit(train=df_train["X"], validation=df_valid["X"], k=k)
+            score = scorer.fit(train=df_train["X"], validation=df_valid["X"], k=k, features=features)
             eval_metric = score.loc["validation", f"{self.metric}@{k}"]
 
         # artifacts logging
@@ -85,7 +88,27 @@ class BayesianSearch:
 
         hyperparams = {**tunable_params, **self.param_grid["fixed"]}
 
-        if self.algorithm=="KNNWithMeans":
+        if self.algorithm=="TwoTower":
+            hyperparams["user_layers"] = [
+                trial.suggest_int(f"user_layer_{i}", 32, 128)
+                for i in range(hyperparams["num_user_layers"])
+                ]
+            hyperparams["user_dropout"] = [
+                trial.suggest_float(f"user_dropout_{i}", 0.0, 0.5)
+                for i in range(hyperparams["num_user_layers"])
+                ]
+            hyperparams["item_layers"] = [
+                trial.suggest_int(f"item_layer_{i}", 32, 128)
+                for i in range(hyperparams["num_item_layers"])
+                ]
+            hyperparams["item_dropout"] = [
+                trial.suggest_float(f"item_dropout_{i}", 0.0, 0.5)
+                for i in range(hyperparams["num_item_layers"])
+                ]
+            
+            del hyperparams["num_user_layers"], hyperparams["num_item_layers"]
+        
+        elif self.algorithm=="KNNWithMeans":
             # merge hyperparams in sim_options param
             sim_options = {
                 "name": hyperparams["name"]
