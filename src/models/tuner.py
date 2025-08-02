@@ -1,5 +1,6 @@
 import pandas as pd
 import optuna
+from typing import Union
 
 from src.models.ranker import Ranker
 from src.models.retrieval import Retrieval
@@ -7,15 +8,15 @@ from src.models.evaluator import Evaluation
 
 
 # supported methods
-methods = ["retrieval", "ranker"]
+METHODS = ["retrieval", "ranker"]
 
 
 class BayesianSearch:
     def __init__(self, config: dict, method: str, algorithm: str):
         # check and assign method
-        if method not in methods:
+        if method not in METHODS:
             raise NotImplementedError(
-                f"{method} isn't supported. Select from {methods}."
+                f"{method} isn't supported. Select from {METHODS}."
             )
         
         self.method = method        
@@ -28,20 +29,20 @@ class BayesianSearch:
 
     def fit(
             self
-            , df_train: dict[str, pd.DataFrame | list]
-            , df_valid: dict[str, pd.DataFrame | list]
+            , df_train: dict[str, Union[pd.DataFrame, list]]
+            , df_valid: dict[str, Union[pd.DataFrame, list]]
             , trial: optuna.trial.Trial
             , k: int = 10
+            , features: dict[str, pd.DataFrame] = None
+            , epochs: int = None
             ) -> float:
         
         # set suggested hyper-parameters
         hyperparams = self._suggest_hyperparams(trial)
 
         if self.method == "ranker":
-            # set algorithm instance
+            # set algorithm instance and fit training data
             clf = Ranker(algorithm=self.algorithm, params=hyperparams)
-            
-            # fit the model with early stopping if needed
             clf.fit(
                 df_train["X"], df_train["y"]
                 , group=df_train["group"]
@@ -55,23 +56,21 @@ class BayesianSearch:
                 train=(df_train["group"], df_train["X"], df_train["y"]),
                 validation=(df_valid["group"], df_valid["X"], df_valid["y"])
                 )
-            self.artifacts["metrics_valid"][trial.number] = score
-            self.artifacts["models"][trial.number] = clf
             eval_metric = score.loc["validation", self.metric]
 
         elif self.method == "retrieval":
-            # set algorithm instance
+            # set algorithm instance and fit training data
             clf = Retrieval(algorithm=self.algorithm, params=hyperparams)
-
-            # fit model
-            clf.fit(trainset=df_train["X"])
-
+            clf.fit(trainset=df_train["X"], features=features, epochs=epochs)
+            
             # compute predictions and evaluate
             scorer = Evaluation(clf=clf)
-            score = scorer.fit(train=df_train["X"], validation=df_valid["X"], k=k)
-            self.artifacts["metrics_valid"][trial.number] = score
-            self.artifacts["models"][trial.number] = clf
+            score = scorer.fit(train=df_train["X"], validation=df_valid["X"], k=k, features=features)
             eval_metric = score.loc["validation", f"{self.metric}@{k}"]
+
+        # artifacts logging
+        self.artifacts["metrics_valid"][trial.number] = score
+        self.artifacts["models"][trial.number] = clf
 
         return eval_metric
     
@@ -89,7 +88,27 @@ class BayesianSearch:
 
         hyperparams = {**tunable_params, **self.param_grid["fixed"]}
 
-        if self.algorithm=="KNNWithMeans":
+        if self.algorithm=="TwoTower":
+            hyperparams["user_layers"] = [
+                trial.suggest_int(f"user_layer_{i}", 32, 128)
+                for i in range(hyperparams["num_user_layers"])
+                ]
+            hyperparams["user_dropout"] = [
+                trial.suggest_float(f"user_dropout_{i}", 0.0, 0.5)
+                for i in range(hyperparams["num_user_layers"])
+                ]
+            hyperparams["item_layers"] = [
+                trial.suggest_int(f"item_layer_{i}", 32, 128)
+                for i in range(hyperparams["num_item_layers"])
+                ]
+            hyperparams["item_dropout"] = [
+                trial.suggest_float(f"item_dropout_{i}", 0.0, 0.5)
+                for i in range(hyperparams["num_item_layers"])
+                ]
+            
+            del hyperparams["num_user_layers"], hyperparams["num_item_layers"]
+        
+        elif self.algorithm=="KNNWithMeans":
             # merge hyperparams in sim_options param
             sim_options = {
                 "name": hyperparams["name"]

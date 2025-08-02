@@ -5,12 +5,12 @@ data_loader:
   sub_paths: ["data", "user", "item"]
 data_preparation:
   rating_conversion:
-    1: [1, 2, 3]
-    2: [4]
-    3: [5]
+    0: [1, 2, 3]
+    1: [4]
+    2: [5]
   rating_flag:
-    negative: [1]
-    positive: [2, 3]
+    negative: [0]
+    positive: [1, 2]
 optimization:
   leave_last_k: 5
   n_trials: 10
@@ -61,6 +61,18 @@ optimization:
         min_k: [1, 20]
       float_params: []
       categ_params: ["name"]
+
+    TwoTower:
+      fixed:
+        user_dim: 64
+        item_dim: 25
+      tunable:
+        embedding_dim: [32, 128]
+        num_user_layers: [4, 8]
+        num_item_layers: [4, 8]
+        lr: [0.0001, 0.01]
+      float_params: ["lr"]
+      categ_params: []
 
   ranker:
     metric: "ndcg"

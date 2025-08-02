@@ -2,21 +2,21 @@ from collections import defaultdict
 from itertools import combinations
 import pandas as pd
 
-
-methods_list = ["positive", "negative", "weighted", "directional"]
+# co visitation matrix methods
+METHODS_LIST = ["positive", "negative", "weighted", "directional"]
 
 
 class CoVisit:
     """Co-Visitation Matrices class."""
 
-    def __init__(self, methods: list[str], top_k: int = 10):
-        if not set(methods).issubset(methods_list):
+    def __init__(self, methods: list[str], k: int = 10):
+        if not set(methods).issubset(METHODS_LIST):
             raise NotImplementedError(
-                f"{methods} isn't supported. Select from {methods_list}."
+                f"{methods} isn't supported. Select from {METHODS_LIST}."
             )
 
         self.methods = methods
-        self.top_k = top_k
+        self.k = k
 
     def fit(self, ui_matrix: pd.DataFrame):
 
@@ -93,7 +93,7 @@ class CoVisit:
                     candidate_scores[neighbor] += score
 
         # top-k scored candidates
-        return sorted(candidate_scores.items(), key=lambda x: x[1], reverse=True)[:self.top_k]
+        return sorted(candidate_scores.items(), key=lambda x: x[1], reverse=True)[:self.k]
     
     def get_candidates_all_users(self, ui_matrix: pd.DataFrame, cov_matrix: dict) -> dict:
         """Get top-k candidates for all users using a co-visit matrix."""

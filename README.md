@@ -20,8 +20,8 @@ https://github.com/user-attachments/assets/6a8eccad-a60a-41ef-ae79-1d8babc2f60c
 #### :test_tube: Work
 Inspired by [modern industrial recommender systems](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf), this recommeder has a multi-stage architecture - **Candidate Generation** and **Ranking**.
 
-- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. This step leverages negative sampling through collaborative filtering methods such as SVD and Co-Clustering to efficiently generate candidate sets.
-- In the 2nd stage, a predictive model ranks the candidate movies based on estimated relevance scores for each user. The ranking process is trained to optimize the Normalized Discounted Cumulative Gain (NDCG) metric, which emphasizes the placement of relevant items higher in the ranked list.
+- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. Collaborative filtering methods such as SVD or Co-Clustering, and heuristics such as co-visitation matrices or hottest items efficiently generate candidate sets.
+- In the 2nd stage, a predictive model ranks the candidate movies based on estimated relevance scores for each user. The ranking process is trained to optimize the Normalized Discounted Cumulative Gain (NDCG) metric, which emphasizes the placement of relevant items higher in the ranked list. Additionally, negative sampling was leveraged to understand possible irrelevant items.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/37317043-fefb-4ecb-b791-3ef1641eea15" />
@@ -32,7 +32,7 @@ Inspired by [modern industrial recommender systems](https://static.googleusercon
 
 **1. Candidate Generation**
 
-To evaluate the 1st phase, a baseline is set to compare the candidates from each heuristic/model (e.g. hottest items, collaborative filtering, ...). The baseline is based on item popularity - number of times an item was rated. Here, the goal is to evaluate if all the relevant items were found and if the candidates are actually relevant.
+To evaluate the 1st phase, a baseline is set to compare the candidates from each heuristic/model (e.g. hottest items, collaborative filtering, ...). The goal is to evaluate if all the relevant items were found and if the candidates are actually relevant. The baseline candidates are most popular items.
 
    - For each user, it is retrieved the top-10 most popular items which weren't rated by the user.
    - Evaluate recall, precision and hit rate on validation (VS) and test (TS) sets.
@@ -59,12 +59,13 @@ Having now different methods to pick candidates from, a pool of candidates must 
 
 **2. Ranking**
 
-This evaluation focuses only on how well the model ranks the items relative to each other. Similarly to 1st phase, the baseline choosen is popularity based - i.e., within the candidate set, rank by item popularity.
+For this 2nd phase, the evaluation focuses only on how well the model ranks the items relative to each other. Similarly to 1st phase, the baseline choosen is popularity based - i.e., within the candidate set rank the items by item popularity.
 
-| Algorithm        | NDCG@5 |
-|------------------|----------|
-| Baseline | 0.917 |
-| **XGBRanker** :trophy: | 0.954 |
+| Algorithm        | NDCG@5 (%) VS | NDCG@5 (%) TS |
+|------------------|----------|----------|
+| Baseline | 73.15 | 70.79 |
+| **XGBRanker** :trophy: | 76.40 | 74.61 |
+| LGBMRanker | 76.03 | 74.81 |
 
 #### :rocket: Deployment
 
