@@ -62,6 +62,18 @@ optimization:
       float_params: []
       categ_params: ["name"]
 
+    TwoTower:
+      fixed:
+        user_dim: 64
+        item_dim: 25
+      tunable:
+        embedding_dim: [32, 128]
+        num_user_layers: [4, 8]
+        num_item_layers: [4, 8]
+        lr: [0.0001, 0.01]
+      float_params: ["lr"]
+      categ_params: []
+
   ranker:
     metric: "ndcg"
     direction: "maximize"
