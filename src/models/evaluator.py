@@ -34,10 +34,10 @@ def hit_rate_at_k(y_pred, y_true, k=10):
 # supported metrics
 metrics = {
     "retrieval": {
-        "rmse": accuracy.rmse,
-        "mse": accuracy.mse,
-        "mae": accuracy.mae,
-        "fcp": accuracy.fcp,
+        #"rmse": accuracy.rmse,
+        #"mse": accuracy.mse,
+        #"mae": accuracy.mae,
+        #"fcp": accuracy.fcp,
         "recall": recall_at_k,
         "precision": precision_at_k,
         "hit_rate": hit_rate_at_k
@@ -52,40 +52,31 @@ class Evaluation:
     def __init__(self, clf: Union[Retrieval, Ranker]):
         self.model = clf
 
-    def fit(self, metric: str = None, k: int = 10, **datasets):
+    def fit(self, metric: str = None, k: int = 10, features: dict[str, pd.DataFrame] = None, **datasets):
         if isinstance(self.model, Retrieval):
-            return self._evaluate_retrieval(metric, k=k, **datasets)
+            return self._evaluate_retrieval(metric, k=k, features=features, **datasets)
         elif isinstance(self.model, Ranker):
             return self._evaluate_ranker(metric, **datasets)
         else:
             raise TypeError("Unsupported model type.")
 
-    def _evaluate_retrieval(self, metric, k, **datasets):
+    def _evaluate_retrieval(self, metric, k, features: dict[str, pd.DataFrame] = None, **datasets):
         selected_metrics = {metric: metrics["retrieval"][metric]} if metric else metrics["retrieval"]
         results = []
-
-        for name, testset in datasets.items():
-            y_pred = self.model.predict(testset=testset)
-            row = {"dataset": name}
-            for metric_name, func in selected_metrics.items():
-                if metric_name in ["rmse", "mse", "mae", "fcp"]:
-                    row[metric_name] = round(func(predictions=y_pred, verbose=False), 5)
-            results.append(row)
 
         # candidate-based evaluation
         train_set = datasets.get("train")
         if train_set is None:
             raise ValueError("`train` set is required for recall/precision/hit_rate evaluation.")
 
-        y_candidates = self.model.top_n(user_ids=train_set["user_id"].unique(), k=k, top=True)
-        row_train = results[0]
-        row_eval = results[1] if "validation" in datasets else results[-1]
-        y_relevant = datasets["validation"] if "validation" in datasets else datasets["test"]
+        y_candidates = self.model.top_n(user_ids=train_set["user_id"].unique(), k=k, top=True, features=features)
 
-        for metric_name, func in selected_metrics.items():
-            if metric_name in ["recall", "precision", "hit_rate"]:
-                row_eval[f"{metric_name}@{k}"] = round(func(y_pred=y_candidates, y_true=y_relevant, k=k), 5)
-                row_train[f"{metric_name}@{k}"] = -1
+        for name, testset in datasets.items():
+            row = {"dataset": name}
+            for metric_name, func in selected_metrics.items():
+                if metric_name in ["recall", "precision", "hit_rate"]:
+                    row[f"{metric_name}@{k}"] = round(func(y_pred=y_candidates, y_true=testset, k=k), 5)
+            results.append(row)
 
         return pd.DataFrame(results).set_index("dataset")
 
