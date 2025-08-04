@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # from pydantic import BaseModel
 import pandas as pd
 
+from main.inference import inference
+
 api = FastAPI(title="Ranking (RecSys) API")
 api.add_middleware(
     CORSMiddleware,
@@ -16,12 +18,7 @@ api.add_middleware(
 @api.get("/recommend")
 def recommend(user_id: int):
     try:
-        # results = inference(user_id=user_id)
-        results = pd.DataFrame({
-            "user_id": [user_id, user_id, user_id],
-            "item_id": [1, 2, 3],
-            "movie_title": ["this", "is a", "test"]
-            })
+        results = inference(user_id=user_id)
 
         if results is None:
             return {"message": "Inference returned None"}
