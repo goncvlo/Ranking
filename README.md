@@ -48,6 +48,7 @@ The table bellow summarises the performance metrics for the different methods.
 | Hottest Items | 1.39 | 0.69 | 6.25 | 1.35 | 0.67 | 5.93 |
 | CoVisited Weighted | 8.97 | 4.48 | 33.08 | 8.69 | 4.34 | 30.96 |
 | CoVisited Directional | 12.53 | 6.26 | 43.37 | 10.83 | 5.41 | 38.91 |
+| TwoTower | | | | | | |
 
 Having now different methods to pick candidates from, a pool of candidates must be created for the ranking phase. For instance, if 10 candidates are picked from 5 different methods, it is obtained a total of 50 candidates for each user - which represents 3% of the total num. of items. In this case, the baseline is the top-50 most popular items which weren't rated by the user.
 
