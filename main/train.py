@@ -53,7 +53,7 @@ def train(config: dict = config):
     for algorithm, params in config["train"]["ranker"].items():
         clf = Ranker(algorithm=algorithm, params=params)
         clf.fit(X=df["X"], y=df["y"], group=df["group"])
-        joblib.dump(clf, f'{config["train"]["model_path"]}/{algorithm}.joblib')
+        joblib.dump(clf, f'{config["train"]["path"]}/{algorithm}.joblib')
 
 
 if __name__ == "__main__":
