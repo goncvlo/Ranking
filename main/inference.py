@@ -5,6 +5,7 @@ import joblib
 
 from src.data.load import load_data
 from src.data.prepare import prepare_data
+from src.models.co_visit import CoVisit
 from src.features.features import feature_engineering
 from src.features.utils import build_rank_input
 from src.models.utils import set_global_seed
@@ -28,14 +29,11 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     if user_id not in dfs["user"]["user_id"].unique():
         return pd.DataFrame(columns=["user_id", "item_id", "movie_title"])
 
-    # load models and get candidates
-    candidates = []
-    for algo in config["train"]["retrieval"].keys():
-        clf = joblib.load(f'{config["train"]["model_path"]}/{algo}.joblib')
-        candidates.append(clf.top_n([user_id]))
-
-    candidates = pd.concat(candidates, ignore_index=True)
+    # get candidates
+    candidates = CoVisit(methods=["directional"], k=50).fit(ui_matrix=dfs["data"])
+    candidates = candidates.rename(columns={"score": "rating"})
     candidates["rating"] = candidates["rating"].round()
+    candidates = candidates[candidates["user_id"]==user_id]
 
     # feature engineering
     user_item_features = feature_engineering(dataframes=dfs)
