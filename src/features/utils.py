@@ -8,14 +8,14 @@ def build_rank_input(
     data = {}
 
     # number of ratings per user
-    data['group'] = ratings.groupby('user_id').size().to_list()
+    data["group"] = ratings.groupby("user_id").size().to_list()
     # user and item features, and ratings
-    data['X'] = (
-        ratings.copy()
-        .merge(features['user'], on='user_id', how='left')
-        .merge(features['item'], on='item_id', how='left')
-        .drop(columns=['user_id', 'item_id', 'rating'])
+    data["X"] = (
+        ratings[["user_id", "item_id", "rating"]].copy()
+        .merge(features["user"], on="user_id", how="left")
+        .merge(features["item"], on="item_id", how="left")
+        .drop(columns=["user_id", "item_id", "rating"])
         )
-    data['y'] = ratings['rating'].round().astype(int)
+    data["y"] = ratings["rating"].round().astype(int)
 
     return data
