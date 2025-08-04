@@ -26,6 +26,7 @@ joblib = "1.4.2"
 fastapi = "0.115.12"
 uvicorn = "0.34.1"
 gunicorn = "23.0.0"
+torch = "2.7.1+cpu"
 
 # Development dependencies
 [tool.poetry.group.dev.dependencies]
