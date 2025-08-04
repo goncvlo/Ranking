@@ -46,16 +46,16 @@ The table bellow summarises the performance metrics for the different methods.
 | SVD | 0.44 | 0.22 | 2.22 | 0.27 | 0.13 | 1.37 |
 | CoClustering | 0.36 | 0.18 | 1.59 | 0.25  | 0.12 | 1.27 |
 | Hottest Items | 1.39 | 0.69 | 6.25 | 1.35 | 0.67 | 5.93 |
-| CoVisited Weighted | 9.33 | 4.66 | 34.04 | 9.28 | 4.64 | 33.82 |
-| CoVisited Directional | 12.53 | 6.26 | 43.37 | 10.71 | 5.35 | 38.70 |
+| CoVisited Weighted | 8.97 | 4.48 | 33.08 | 8.69 | 4.34 | 30.96 |
+| CoVisited Directional | 12.53 | 6.26 | 43.37 | 10.83 | 5.41 | 38.91 |
 
 Having now different methods to pick candidates from, a pool of candidates must be created for the ranking phase. For instance, if 10 candidates are picked from 5 different methods, it is obtained a total of 50 candidates for each user - which represents 3% of the total num. of items. In this case, the baseline is the top-50 most popular items which weren't rated by the user.
 
 | Algorithm        | Recall@50 (%) VS | Precision@50 (%) VS | HitRate@50 (%) VS | Recall@50 (%) TS | Precision@50 (%) TS | HitRate@50 (%) TS |
 |------------------|----------|----------|----------|----------|----------|----------|
 | Baseline | 22.43 | 2.24 | 63.73 | 21.93 | 2.19 | 60.76 |
-| Pool #1 |   |   |   |   |   |   |
-| Pool #2 |   |   |   |   |   |   |
+| Pool #1 (directional) | 36.58 | 3.65 | 75.18 | 33.51 | 3.35 | 74.33 |
+| Pool #2 (directional & weighted)| 27.97 | 3.77 | 69.03 | 25.28 | 3.42 | 66.80 |
 
 **2. Ranking**
 
