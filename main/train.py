@@ -5,7 +5,6 @@ import joblib
 
 from src.data.load import load_data
 from src.data.prepare import prepare_data
-from src.models.retrieval import Retrieval
 from src.models.baseline import popular_items
 from src.models.co_visit import CoVisit
 from src.features.features import feature_engineering
@@ -30,12 +29,6 @@ def train(config: dict = config):
     dfs = load_data(config=config['data_loader'])
     dfs = prepare_data(dataframes=dfs, config=config["data_preparation"])
 
-    # train and log retrieval models
-    for algorithm, params in config["train"]["retrieval"].items():
-        clf = Retrieval(algorithm=algorithm, params=params)
-        clf.fit(trainset=dfs["data"])
-        joblib.dump(clf, f'{config["train"]["model_path"]}/{algorithm}.joblib')
-
     # negative sampling for ranking model
     neg_sample_1 = popular_items(
         ui_matrix=dfs["data"],
@@ -52,7 +45,7 @@ def train(config: dict = config):
     # feature engineering for ranking model
     user_item_features = feature_engineering(dataframes=dfs)
     df = pd.concat([dfs["data"], neg_sample], ignore_index=True)
-    df = build_rank_input(ratings=df.iloc[:, :3], features=user_item_features)
+    df = build_rank_input(ratings=df, features=user_item_features)
 
     del neg_sample, user_item_features
 
