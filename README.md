@@ -12,15 +12,12 @@ Easily accessible via a web API, deployed with FastAPI, Docker, and Google Cloud
 
 **Visit https://ranking-recsys-ui.netlify.app/**
 
-
-https://github.com/user-attachments/assets/6a8eccad-a60a-41ef-ae79-1d8babc2f60c
-
-
+https://github.com/user-attachments/assets/dc6e4cf2-641f-4194-994e-e4dcef83efc2
 
 #### :test_tube: Work
 Inspired by [modern industrial recommender systems](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf), this recommeder has a multi-stage architecture - **Candidate Generation** and **Ranking**.
 
-- The 1st stage applies lightweight models to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. Collaborative filtering methods such as SVD or Co-Clustering, and heuristics such as co-visitation matrices or hottest items efficiently generate candidate sets.
+- The 1st stage aims to narrow down the vast space of possible movie recommendations to a manageable subset of candidates for each user. Collaborative filtering methods such as SVD or Co-Clustering, and heuristics such as co-visitation matrices or hottest items were tested to efficiently generate candidate sets. See more details bellow.
 - In the 2nd stage, a predictive model ranks the candidate movies based on estimated relevance scores for each user. The ranking process is trained to optimize the Normalized Discounted Cumulative Gain (NDCG) metric, which emphasizes the placement of relevant items higher in the ranked list. Additionally, negative sampling was leveraged to understand possible irrelevant items.
 
 <p align="center">
@@ -39,8 +36,8 @@ To evaluate the 1st phase, a baseline is set to compare the candidates from each
 
 The table bellow summarises the performance metrics for the different methods.
 
-| Algorithm        | Recall@10 (%) VS | Precision@10 (%) VS |  HitRate@10 (%) VS | Recall@10 (%) TS |  Precision@10 (%) TS | HitRate@10 (%) TS |
-|------------------|----------|----------|----------|----------|----------|----------|
+| Algorithm | Recall@10 (%) VS | Precision@10 (%) VS |  HitRate@10 (%) VS | Recall@10 (%) TS |  Precision@10 (%) TS | HitRate@10 (%) TS |
+|----------|----------|----------|----------|----------|----------|----------|
 | Baseline | 8.20 | 4.10 | 32.13 | 7.57 | 3.78 | 30.43 |
 | KNNWithMeans | 1.35 | 0.67 | 6.46 | 1.44 | 0.72 | 6.78 |
 | SVD | 0.44 | 0.22 | 2.22 | 0.27 | 0.13 | 1.37 |
@@ -52,20 +49,20 @@ The table bellow summarises the performance metrics for the different methods.
 
 Having now different methods to pick candidates from, a pool of candidates must be created for the ranking phase. For instance, if 10 candidates are picked from 5 different methods, it is obtained a total of 50 candidates for each user - which represents 3% of the total num. of items. In this case, the baseline is the top-50 most popular items which weren't rated by the user.
 
-| Algorithm        | Recall@50 (%) VS | Precision@50 (%) VS | HitRate@50 (%) VS | Recall@50 (%) TS | Precision@50 (%) TS | HitRate@50 (%) TS |
-|------------------|----------|----------|----------|----------|----------|----------|
+| Algorithm | Recall@50 (%) VS | Precision@50 (%) VS | HitRate@50 (%) VS | Recall@50 (%) TS | Precision@50 (%) TS | HitRate@50 (%) TS |
+|----------|----------|----------|----------|----------|----------|----------|
 | Baseline | 22.43 | 2.24 | 63.73 | 21.93 | 2.19 | 60.76 |
 | Pool #1 | 36.58 | 3.65 | 75.18 | 33.51 | 3.35 | 74.33 |
 | Pool #2 | 27.97 | 3.77 | 69.03 | 25.28 | 3.42 | 66.80 |
 
-Pool #1 gets all its candidates from directional co-visitation matrix and Pool #2 gets all its candidates from directional or weighted co-visitation matrices. 
+Pool #1 gets all its candidates from directional co-visitation matrix and Pool #2 gets half of its candidates from directional co-visitation matrix and the other half from weighted co-visitation matrix. 
 
 **2. Ranking**
 
 For this 2nd phase, the evaluation focuses only on how well the model ranks the items relative to each other. Similarly to 1st phase, the baseline choosen is popularity based - i.e., within the candidate set rank the items by item popularity.
 
-| Algorithm        | NDCG@5 (%) VS | NDCG@5 (%) TS |
-|------------------|----------|----------|
+| Algorithm | NDCG@5 (%) VS | NDCG@5 (%) TS |
+|----------|----------|----------|
 | Baseline | 73.15 | 70.79 |
 | **XGBRanker** :trophy: | 76.40 | 74.61 |
 | LGBMRanker | 76.03 | 74.81 |
@@ -73,10 +70,10 @@ For this 2nd phase, the evaluation focuses only on how well the model ranks the 
 #### :rocket: Deployment
 
 #### :hourglass_flowing_sand: Future Work
-- [Modeling] Add content-based candidates & try other rankers
-- [Implicit feedback] Binarize ratings (e.g. rating>=4)
-- [Scalability] Test ml-1m datset
+- [Modeling] Try content-based candidates & enhance ranker features
+- [Scalability] Test ml-1m dataset & implicit feedback datasets
 
 #### :handshake: References
 - [MovieLens Dataset](https://grouplens.org/datasets/movielens/100k/)
+- [Instagram RecSys](https://engineering.fb.com/2023/08/09/ml-applications/scaling-instagram-explore-recommendations-system/)
 - [Multi-stage Architecture](https://medium.com/nvidia-merlin/recommender-systems-not-just-recommender-models-485c161c755e)

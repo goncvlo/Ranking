@@ -33,8 +33,8 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     candidates = (
         CoVisit(methods=["directional"], k=50)
         .fit(ui_matrix=dfs["data"])
+        .rename(columns={"score": "rating"})
         )
-    candidates = candidates.rename(columns={"score": "rating"})
     candidates["rating"] = candidates["rating"].round()
     candidates = candidates[candidates["user_id"] == user_id]
 
@@ -44,9 +44,9 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     del user_item_features
 
     # load model and get top-3 recommendations
-    for algo in config["train"]["ranker"].keys():
-        clf = joblib.load(f'{config["train"]["model_path"]}/{algo}.joblib')
-        candidates["score"] = clf.predict(X=df["X"])
+    algorithm = list(config["train"]["ranker"].keys())[0]
+    clf = joblib.load(f'{config["train"]["path"]}/{algorithm}.joblib')
+    candidates["score"] = clf.predict(X=df["X"])
 
     candidates = (
         candidates
