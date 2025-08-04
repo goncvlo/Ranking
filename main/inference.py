@@ -30,10 +30,13 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
         return pd.DataFrame(columns=["user_id", "item_id", "movie_title"])
 
     # get candidates
-    candidates = CoVisit(methods=["directional"], k=50).fit(ui_matrix=dfs["data"])
+    candidates = (
+        CoVisit(methods=["directional"], k=50)
+        .fit(ui_matrix=dfs["data"])
+        )
     candidates = candidates.rename(columns={"score": "rating"})
     candidates["rating"] = candidates["rating"].round()
-    candidates = candidates[candidates["user_id"]==user_id]
+    candidates = candidates[candidates["user_id"] == user_id]
 
     # feature engineering
     user_item_features = feature_engineering(dataframes=dfs)
