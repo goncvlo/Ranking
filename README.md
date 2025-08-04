@@ -54,8 +54,10 @@ Having now different methods to pick candidates from, a pool of candidates must 
 | Algorithm        | Recall@50 (%) VS | Precision@50 (%) VS | HitRate@50 (%) VS | Recall@50 (%) TS | Precision@50 (%) TS | HitRate@50 (%) TS |
 |------------------|----------|----------|----------|----------|----------|----------|
 | Baseline | 22.43 | 2.24 | 63.73 | 21.93 | 2.19 | 60.76 |
-| Pool #1 (directional) | 36.58 | 3.65 | 75.18 | 33.51 | 3.35 | 74.33 |
-| Pool #2 (directional & weighted)| 27.97 | 3.77 | 69.03 | 25.28 | 3.42 | 66.80 |
+| Pool #1 | 36.58 | 3.65 | 75.18 | 33.51 | 3.35 | 74.33 |
+| Pool #2 | 27.97 | 3.77 | 69.03 | 25.28 | 3.42 | 66.80 |
+
+Pool #1 gets all its candidates from directional co-visitation matrix and Pool #2 gets all its candidates from directional or weighted co-visitation matrices. 
 
 **2. Ranking**
 
