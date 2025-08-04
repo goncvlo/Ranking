@@ -12,8 +12,8 @@ Easily accessible via a web API, deployed with FastAPI, Docker, and Google Cloud
 
 **Visit https://ranking-recsys-ui.netlify.app/**
 
+https://github.com/user-attachments/assets/dc6e4cf2-641f-4194-994e-e4dcef83efc2
 
-https://github.com/user-attachments/assets/6a8eccad-a60a-41ef-ae79-1d8babc2f60c
 
 
 
@@ -73,9 +73,9 @@ For this 2nd phase, the evaluation focuses only on how well the model ranks the 
 #### :rocket: Deployment
 
 #### :hourglass_flowing_sand: Future Work
-- [Modeling] Add content-based candidates & try other rankers
+- [Modeling] Try content-based candidates & enhance ranker features
 - [Implicit feedback] Binarize ratings (e.g. rating>=4)
-- [Scalability] Test ml-1m datset
+- [Scalability] Test ml-1m datset or richer datasets
 
 #### :handshake: References
 - [MovieLens Dataset](https://grouplens.org/datasets/movielens/100k/)
