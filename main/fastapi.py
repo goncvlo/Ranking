@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from pydantic import BaseModel
 
 from main.inference import inference
+
+# from pydantic import BaseModel
+
 
 api = FastAPI(title="Ranking (RecSys) API")
 api.add_middleware(

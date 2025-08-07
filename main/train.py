@@ -1,17 +1,17 @@
 from pathlib import Path
-import yaml
-import pandas as pd
+
 import joblib
+import pandas as pd
+import yaml
 
 from src.data.load import load_data
 from src.data.prepare import prepare_data
-from src.models.baseline import popular_items
-from src.models.co_visit import CoVisit
 from src.features.features import feature_engineering
 from src.features.utils import build_rank_input
+from src.models.baseline import popular_items
+from src.models.co_visit import CoVisit
 from src.models.ranker import Ranker
 from src.models.utils import set_global_seed
-
 
 # read config
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
@@ -26,13 +26,13 @@ def train(config: dict = config):
     """Train pipeline."""
 
     # load and prepare data
-    dfs = load_data(config=config['data_loader'])
+    dfs = load_data(config=config["data_loader"])
     dfs = prepare_data(dataframes=dfs, config=config["data_preparation"])
 
     # negative sampling for ranking model
     neg_sample_1 = popular_items(
-        ui_matrix=dfs["data"],
-        k=config["train"]["negative_sample"]["popular"])
+        ui_matrix=dfs["data"], k=config["train"]["negative_sample"]["popular"]
+    )
     neg_sample_2 = CoVisit(methods=["negative"]).fit(ui_matrix=dfs["data"])
     neg_sample = pd.concat([neg_sample_1, neg_sample_2], ignore_index=True)
 
