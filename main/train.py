@@ -15,7 +15,7 @@ from src.models.utils import set_global_seed
 
 # read config
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
-with open(CONFIG_PATH, "r") as file:
+with open(CONFIG_PATH) as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 # ensure reproducibility
