@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: black
         name: Black formatter
-        files: ^main/
+        files: ^(main/src)/
         stages: [pre-commit]
 
   - repo: https://github.com/pycqa/isort
@@ -12,7 +12,7 @@ repos:
     hooks:
       - id: isort
         name: Sorting imports
-        files: ^main/
+        files: ^(main/src)/
         stages: [pre-commit]
 
   - repo: https://github.com/PyCQA/bandit
@@ -20,7 +20,7 @@ repos:
     hooks:
       - id: bandit
         name: Security Linter
-        files: ^main/
+        files: ^(main/src)/
         stages: [pre-commit]
 
   - repo: https://github.com/asottile/pyupgrade
@@ -28,7 +28,7 @@ repos:
     hooks:
     -   id: pyupgrade
         name: Upgrade syntax to newer versions
-        files: ^main/
+        files: ^(main/src)/
         stages: [pre-commit]
 
   - repo: https://github.com/gitleaks/gitleaks
