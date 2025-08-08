@@ -1,11 +1,9 @@
-from xgboost import XGBRanker
 from lightgbm import LGBMRanker
+from xgboost import XGBRanker
 
 # supported algorithms
-ALGORITHMS = {
-    "XGBRanker": XGBRanker,
-    "LGBMRanker": LGBMRanker
-}
+ALGORITHMS = {"XGBRanker": XGBRanker, "LGBMRanker": LGBMRanker}
+
 
 class Ranker:
     """Ranking model class."""
@@ -18,9 +16,9 @@ class Ranker:
             self.model = ALGORITHMS[self.algorithm](**self.params)
         else:
             raise NotImplementedError(
-                f"{algorithm} isn't supported. Select from {list(ALGORITHMS.keys())}."
+                f"{algorithm} isn't supported. Select from {list(ALGORITHMS.keys())}."  # nosec
             )
-    
+
     def fit(self, X, y, group=None):
         """Fit ranking model."""
         self.model.fit(X=X, y=y, group=group)
@@ -28,4 +26,3 @@ class Ranker:
     def predict(self, X):
         """Predict with ranking model."""
         return self.model.predict(X=X)
-    
