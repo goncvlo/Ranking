@@ -1,34 +1,38 @@
 import os
-import pandas as pd
+import pickle  # nosec
+import subprocess  # nosec
 import time
-from typing import Union
-from datetime import datetime
-import mlflow
-import subprocess
 import webbrowser
+from datetime import datetime
+from typing import Union
+
+import mlflow
+import pandas as pd
+from lightgbm import LGBMModel
 from optuna.study import Study
 from surprise import AlgoBase
 from xgboost import XGBModel
-from lightgbm import LGBMModel
-import pickle
 
-from src.models.tuner import BayesianSearch
 from src.models.ranker import Ranker
 from src.models.retrieval import Retrieval
+from src.models.tuner import BayesianSearch
 
 
 class Logging:
 
-    def __init__(self, experiment_name: str, run_name: str, input_sample: pd.DataFrame = None):
+    def __init__(
+        self, experiment_name: str, run_name: str, input_sample: pd.DataFrame = None
+    ):
         self.experiment_name = experiment_name
         self.run_name = run_name
         self.input_sample = input_sample
 
     def log_run(
-            self,
-            study: Study = None, tuner: BayesianSearch = None,
-            clf: Union[Retrieval, Ranker] = None
-            ):
+        self,
+        study: Study = None,
+        tuner: BayesianSearch = None,
+        clf: Union[Retrieval, Ranker] = None,
+    ):
 
         with get_run(self.experiment_name, self.run_name) as parent:
             now = datetime.now().strftime("%d%b%Y_%H%M%S").upper()
@@ -45,9 +49,9 @@ class Logging:
         metrics = {
             "duration_secs": study.best_trial.duration.total_seconds(),
             "trial_index": study.best_trial.number,
-            tuner.metric: study.best_trial.value
-            }
-        
+            tuner.metric: study.best_trial.value,
+        }
+
         # logging
         mlflow.log_params(params=tuner.artifacts["models"][-1].params)
         mlflow.log_metrics(metrics=metrics)
@@ -70,9 +74,9 @@ class Logging:
             self._log_model(
                 clf=tuner.artifacts["models"][i_model],
                 name=f"{tuner.algorithm}_{name}",
-                input_sample=self.input_sample
-                )
-            
+                input_sample=self.input_sample,
+            )
+
     def _log_training(self, clf: Union[Retrieval, Ranker]):
 
         mlflow.log_params(params=clf.params)
@@ -85,11 +89,12 @@ class Logging:
         os.remove(f"{name}.csv")
 
     def _log_model(
-            self,
-            clf: Union[Retrieval, Ranker], name: str,
-            input_sample: Union[pd.DataFrame, None] = None
-            ):
-        
+        self,
+        clf: Union[Retrieval, Ranker],
+        name: str,
+        input_sample: Union[pd.DataFrame, None] = None,
+    ):
+
         model = clf.model
 
         if isinstance(model, AlgoBase):
@@ -97,33 +102,37 @@ class Logging:
                 pickle.dump(model, f)
             mlflow.log_artifact(f"{name}.pkl", artifact_path=name)
             os.remove(f"{name}.pkl")
-        
+
         else:
             output_sample = clf.predict(input_sample)
-            input_sample = input_sample.astype({col: 'float' for col in input_sample.select_dtypes(include='int').columns})
-            signature = mlflow.models.signature.infer_signature(input_sample, output_sample)
-            
+            input_sample = input_sample.astype(
+                {
+                    col: "float"
+                    for col in input_sample.select_dtypes(include="int").columns
+                }
+            )
+            signature = mlflow.models.signature.infer_signature(
+                input_sample, output_sample
+            )
+
             if isinstance(model, XGBModel):
                 mlflow.xgboost.log_model(
                     model,
                     name=name,
                     input_example=input_sample,
                     signature=signature,
-                    model_format="json"
+                    model_format="json",
                 )
 
             elif isinstance(model, LGBMModel):
                 mlflow.lightgbm.log_model(
-                    model,
-                    name=name,
-                    input_example=input_sample,
-                    signature=signature
-                    )
-    
-                
+                    model, name=name, input_example=input_sample, signature=signature
+                )
+
+
 def launch_mlflow():
     """Launch MLflow UI on localhost and open it in a browser."""
-    subprocess.Popen(["mlflow", "ui"])
+    subprocess.Popen(["mlflow", "ui"])  # nosec
     time.sleep(2)
     webbrowser.open(f"http://127.0.0.1:5000")
     mlflow.autolog(disable=True)
@@ -146,9 +155,9 @@ def get_run(experiment_name: str, run_name: str):
     runs = client.search_runs(
         experiment_ids=[experiment_id],
         filter_string=f"tags.mlflow.runName = '{run_name}'",
-        order_by=["start_time DESC"]
+        order_by=["start_time DESC"],
     )
-    
+
     if runs:
         # resume existing run (will inherit correct experiment)
         existing_run_id = runs[0].info.run_id

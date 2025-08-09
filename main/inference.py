@@ -1,18 +1,19 @@
 from pathlib import Path
-import yaml
-import pandas as pd
+
 import joblib
+import pandas as pd
+import yaml
 
 from src.data.load import load_data
 from src.data.prepare import prepare_data
-from src.models.co_visit import CoVisit
 from src.features.features import feature_engineering
 from src.features.utils import build_rank_input
+from src.models.co_visit import CoVisit
 from src.models.utils import set_global_seed
 
 # read config
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "main" / "config.yml"
-with open(CONFIG_PATH, "r") as file:
+with open(CONFIG_PATH) as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 # ensure reproducibility
@@ -34,7 +35,7 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
         CoVisit(methods=["directional"], k=50)
         .fit(ui_matrix=dfs["data"])
         .rename(columns={"score": "rating"})
-        )
+    )
     candidates["rating"] = candidates["rating"].round()
     candidates = candidates[candidates["user_id"] == user_id]
 
@@ -49,13 +50,10 @@ def inference(user_id: int, config: dict = config) -> pd.DataFrame:
     candidates["score"] = clf.predict(X=df["X"])
 
     candidates = (
-        candidates
-        .drop_duplicates(subset=["user_id", "item_id"])
+        candidates.drop_duplicates(subset=["user_id", "item_id"])
         .sort_values(["user_id", "score"], ascending=[True, False])
-        .groupby("user_id").head(3)[["user_id", "item_id"]]
-        .merge(
-            dfs["item"][["item_id", "movie_title"]],
-            how="left", on="item_id"
-            )
+        .groupby("user_id")
+        .head(3)[["user_id", "item_id"]]
+        .merge(dfs["item"][["item_id", "movie_title"]], how="left", on="item_id")
     )
     return candidates
