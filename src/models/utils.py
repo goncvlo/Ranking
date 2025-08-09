@@ -48,11 +48,9 @@ def _check_user_count(users, expected=943):
         )
 
 
-class BPRDataset(Dataset):
+class ClassificationDataset(Dataset):
     def __init__(self, df_train, features, num_negatives: int = 4):
         self.df = df_train[df_train["rating"] > 0].reset_index(drop=True)
-        self.user_idx = self.df["user_id_encoded"].to_numpy()
-        self.item_idx = self.df["item_id_encoded"].to_numpy()
 
         self.user_feats = (
             features["user"]
@@ -72,24 +70,31 @@ class BPRDataset(Dataset):
         self.num_items = features["item"].shape[0]
         self.num_negatives = num_negatives
 
+        # Pre-build all (user, item, label) triples
+        self.samples = []
+        for _, row in self.df.iterrows():
+            user_idx = row["user_id_encoded"]
+            pos_idx = row["item_id_encoded"]
+
+            # Positive
+            self.samples.append((user_idx, pos_idx, 1))
+
+            # Negatives
+            negs = set()
+            while len(negs) < self.num_negatives:
+                neg_idx = np.random.randint(0, self.num_items)
+                if neg_idx not in self.user_pos_items[user_idx]:
+                    negs.add(neg_idx)
+
+            for neg_idx in negs:
+                self.samples.append((user_idx, neg_idx, 0))
+
     def __len__(self):
-        return self.df.shape[0]
+        return len(self.samples)
 
     def __getitem__(self, idx):
-        row = self.df.iloc[idx]
-        user_idx = row["user_id_encoded"]
-        pos_idx = row["item_id_encoded"]
-
-        # negative sampling
-        neg_indices = []
-        while len(neg_indices) < self.num_negatives:
-            neg_idx = np.random.randint(0, self.num_items)
-            if neg_idx not in self.user_pos_items[user_idx]:
-                neg_indices.append(neg_idx)
-
-        # convert to tensors
+        user_idx, item_idx, label = self.samples[idx]
         user_vec = torch.from_numpy(self.user_feats[user_idx])
-        pos_vec = torch.from_numpy(self.item_feats[pos_idx])
-        neg_vec = torch.from_numpy(self.item_feats[neg_indices])
-
-        return user_vec, pos_vec, neg_vec
+        item_vec = torch.from_numpy(self.item_feats[item_idx])
+        label = torch.tensor(label, dtype=torch.float32)
+        return user_vec, item_vec, label
